@@ -8,74 +8,76 @@ import {
   Search,
   LayoutDashboard,
   ClipboardCheck,
-  Wallet,
   MessageSquare,
   Settings,
-  TrendingUp,
-  TrendingDown,
   CheckCircle2,
   Clock,
   Plus,
+  FileText,
+  PenSquare,
+  ChevronRight,
+  Star,
+  Video,
+  Paperclip,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Northgate Academy — School Management" },
-      { name: "description", content: "Unified school management dashboard for administrators, teachers, students, and parents." },
-      { property: "og:title", content: "Northgate Academy — School Management" },
-      { property: "og:description", content: "Unified school management dashboard for administrators, teachers, students, and parents." },
+      { title: "Teacher Portal — Northgate Academy" },
+      { name: "description", content: "Teacher portal: classes, attendance, gradebook, assignments and parent messages." },
+      { property: "og:title", content: "Teacher Portal — Northgate Academy" },
+      { property: "og:description", content: "Teacher portal: classes, attendance, gradebook, assignments and parent messages." },
     ],
   }),
   component: Index,
 });
 
 const navItems = [
-  { label: "Dashboard", icon: LayoutDashboard, active: true },
-  { label: "Students", icon: Users },
-  { label: "Teachers", icon: GraduationCap },
+  { label: "My day", icon: LayoutDashboard, active: true },
   { label: "Classes", icon: BookOpen },
   { label: "Attendance", icon: ClipboardCheck },
+  { label: "Gradebook", icon: PenSquare },
+  { label: "Assignments", icon: FileText },
+  { label: "Students", icon: Users },
   { label: "Timetable", icon: CalendarDays },
-  { label: "Fees", icon: Wallet },
-  { label: "Messages", icon: MessageSquare },
+  { label: "Messages", icon: MessageSquare, badge: 4 },
   { label: "Settings", icon: Settings },
 ];
 
 const stats = [
-  { label: "Total Students", value: "1,284", delta: "+4.2%", up: true, icon: Users },
-  { label: "Teaching Staff", value: "96", delta: "+2", up: true, icon: GraduationCap },
-  { label: "Attendance Today", value: "94.7%", delta: "-1.3%", up: false, icon: ClipboardCheck },
-  { label: "Fees Collected", value: "$182,940", delta: "+12.8%", up: true, icon: Wallet },
+  { label: "Classes today", value: "5", hint: "2 done · 3 ahead", icon: BookOpen },
+  { label: "Attendance pending", value: "3", hint: "Take before 2pm", icon: ClipboardCheck },
+  { label: "Assignments to grade", value: "28", hint: "Across 4 classes", icon: PenSquare },
+  { label: "Unread messages", value: "4", hint: "From 3 parents", icon: MessageSquare },
 ];
 
 const schedule = [
-  { time: "08:00", subject: "Mathematics — Grade 10A", room: "Room 204", teacher: "Ms. Adeyemi", status: "Live" },
-  { time: "09:30", subject: "Physics — Grade 11B", room: "Lab 3", teacher: "Mr. Okafor", status: "Next" },
-  { time: "11:00", subject: "English Literature — Grade 9C", room: "Room 112", teacher: "Mrs. Bennett", status: "Upcoming" },
-  { time: "13:00", subject: "History — Grade 12A", room: "Room 301", teacher: "Dr. Hassan", status: "Upcoming" },
+  { time: "08:00", subject: "Algebra II", grade: "Grade 10A", room: "Room 204", students: 28, status: "Done" },
+  { time: "09:30", subject: "Geometry", grade: "Grade 9B", room: "Room 204", students: 26, status: "Done" },
+  { time: "11:00", subject: "Calculus", grade: "Grade 12A", room: "Room 301", students: 22, status: "Live" },
+  { time: "13:00", subject: "Statistics", grade: "Grade 11C", room: "Room 207", students: 24, status: "Next" },
+  { time: "14:30", subject: "Math Club", grade: "After-school", room: "Room 204", students: 14, status: "Upcoming" },
 ];
 
-const announcements = [
-  { title: "Mid-term exams begin June 15", meta: "Academic Office · 2h ago", tag: "Exams" },
-  { title: "Parent–teacher meeting this Friday", meta: "Principal · 5h ago", tag: "Event" },
-  { title: "Library closed Saturday for renovation", meta: "Facilities · 1d ago", tag: "Notice" },
+const assignments = [
+  { title: "Quadratic equations — Problem set 4", class: "Grade 10A", due: "Today", submitted: 24, total: 28 },
+  { title: "Geometry proofs — Chapter 6", class: "Grade 9B", due: "Tomorrow", submitted: 19, total: 26 },
+  { title: "Limits & continuity quiz", class: "Grade 12A", due: "Jun 03", submitted: 11, total: 22 },
+  { title: "Data interpretation worksheet", class: "Grade 11C", due: "Jun 05", submitted: 6, total: 24 },
 ];
 
-const enrollments = [
-  { name: "Amara Johnson", grade: "Grade 10", date: "May 28", status: "Approved" },
-  { name: "Liam Okonkwo", grade: "Grade 7", date: "May 27", status: "Pending" },
-  { name: "Sofia Martinez", grade: "Grade 11", date: "May 27", status: "Approved" },
-  { name: "Noah Chen", grade: "Grade 9", date: "May 26", status: "Review" },
+const messages = [
+  { from: "Mrs. Johnson", role: "Parent · Amara, 10A", preview: "Could we reschedule Friday's parent meeting to…", time: "12m", unread: true },
+  { from: "Liam Okonkwo", role: "Student · 9B", preview: "I won't be able to submit the proofs today because…", time: "1h", unread: true },
+  { from: "Mr. Martinez", role: "Parent · Sofia, 11C", preview: "Thanks for the extra resources on regression.", time: "3h", unread: false },
+  { from: "Dr. Hassan", role: "Dept. Head", preview: "Curriculum review meeting moved to Thursday 4pm.", time: "Yesterday", unread: false },
 ];
 
-const attendanceBars = [
-  { d: "Mon", v: 96 },
-  { d: "Tue", v: 92 },
-  { d: "Wed", v: 88 },
-  { d: "Thu", v: 94 },
-  { d: "Fri", v: 91 },
-  { d: "Sat", v: 70 },
+const focusStudents = [
+  { name: "Noah Chen", grade: "10A", note: "Missed 3 of last 5 assignments", trend: "down" },
+  { name: "Priya Shah", grade: "12A", note: "Top performer · ready for extension", trend: "up" },
+  { name: "Marcus Bell", grade: "9B", note: "Attendance dropped to 78%", trend: "down" },
 ];
 
 function Index() {
@@ -89,7 +91,7 @@ function Index() {
           </div>
           <div>
             <p className="font-display text-base font-semibold leading-tight">Northgate</p>
-            <p className="text-xs text-sidebar-foreground/60">Academy · EST. 1962</p>
+            <p className="text-xs text-sidebar-foreground/60">Teacher Portal</p>
           </div>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1">
@@ -104,14 +106,22 @@ function Index() {
               }`}
             >
               <item.icon className="h-4 w-4" />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {item.badge ? (
+                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-accent text-accent-foreground">
+                  {item.badge}
+                </span>
+              ) : null}
             </a>
           ))}
         </nav>
         <div className="m-3 p-4 rounded-xl bg-sidebar-accent text-sidebar-accent-foreground">
-          <p className="text-xs uppercase tracking-wider text-sidebar-foreground/60">Term ending</p>
-          <p className="font-display text-lg font-semibold mt-1">28 days left</p>
-          <p className="text-xs text-sidebar-foreground/60 mt-1">Spring Term 2026</p>
+          <p className="text-xs uppercase tracking-wider text-sidebar-foreground/60">Next class</p>
+          <p className="font-display text-lg font-semibold mt-1">Calculus · 11:00</p>
+          <p className="text-xs text-sidebar-foreground/60 mt-1">Grade 12A · Room 301</p>
+          <button className="mt-3 w-full h-8 rounded-md bg-sidebar-primary text-sidebar-primary-foreground text-xs font-medium hover:opacity-90 inline-flex items-center justify-center gap-1.5">
+            <Video className="h-3 w-3" /> Open lesson
+          </button>
         </div>
       </aside>
 
@@ -121,12 +131,12 @@ function Index() {
         <header className="h-16 border-b border-border bg-card/60 backdrop-blur px-4 md:px-8 flex items-center gap-4">
           <div className="flex items-center gap-2 lg:hidden">
             <div className="h-8 w-8 rounded-lg bg-primary text-primary-foreground grid place-items-center font-display font-bold text-sm">N</div>
-            <span className="font-display font-semibold">Northgate</span>
+            <span className="font-display font-semibold">Teacher</span>
           </div>
           <div className="flex-1 max-w-md relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
-              placeholder="Search students, classes, staff…"
+              placeholder="Search students, classes, assignments…"
               className="w-full h-10 pl-10 pr-3 rounded-lg bg-secondary border border-transparent focus:border-ring focus:bg-background outline-none text-sm"
             />
           </div>
@@ -136,11 +146,11 @@ function Index() {
           </button>
           <div className="flex items-center gap-3 pl-3 border-l border-border">
             <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary to-accent grid place-items-center text-primary-foreground font-display font-semibold text-sm">
-              EA
+              SR
             </div>
             <div className="hidden md:block leading-tight">
-              <p className="text-sm font-medium">Eleanor Avery</p>
-              <p className="text-xs text-muted-foreground">Principal</p>
+              <p className="text-sm font-medium">Sarah Reyes</p>
+              <p className="text-xs text-muted-foreground">Mathematics · Grade 9–12</p>
             </div>
           </div>
         </header>
@@ -154,17 +164,17 @@ function Index() {
             <div className="relative z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-primary-foreground/70">Sunday · May 31, 2026</p>
-                <h1 className="font-display text-3xl md:text-4xl font-semibold mt-2">Good morning, Eleanor.</h1>
+                <h1 className="font-display text-3xl md:text-4xl font-semibold mt-2">Good morning, Sarah.</h1>
                 <p className="text-primary-foreground/80 mt-2 max-w-xl">
-                  Three teachers reported absences today and 12 fee payments need your approval.
+                  You teach 5 classes today. Calculus 12A starts in 32 minutes — your lesson plan is ready.
                 </p>
               </div>
               <div className="flex gap-2">
                 <button className="h-10 px-4 rounded-lg bg-primary-foreground text-primary text-sm font-medium hover:bg-primary-foreground/90 transition">
-                  Daily briefing
+                  Take attendance
                 </button>
                 <button className="h-10 px-4 rounded-lg bg-primary-foreground/10 border border-primary-foreground/20 text-sm font-medium hover:bg-primary-foreground/20 transition flex items-center gap-2">
-                  <Plus className="h-4 w-4" /> New announcement
+                  <Plus className="h-4 w-4" /> New assignment
                 </button>
               </div>
             </div>
@@ -180,13 +190,11 @@ function Index() {
                   <div className="h-10 w-10 rounded-lg bg-secondary text-primary grid place-items-center">
                     <s.icon className="h-5 w-5" />
                   </div>
-                  <span className={`inline-flex items-center gap-1 text-xs font-medium ${s.up ? "text-[color:var(--success)]" : "text-destructive"}`}>
-                    {s.up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                    {s.delta}
-                  </span>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <p className="font-display text-2xl font-semibold mt-4">{s.value}</p>
-                <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
+                <p className="text-sm font-medium mt-1">{s.label}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{s.hint}</p>
               </div>
             ))}
           </section>
@@ -197,23 +205,25 @@ function Index() {
             <div className="xl:col-span-2 rounded-xl bg-card border border-border p-6" style={{ boxShadow: "var(--shadow-soft)" }}>
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="font-display text-lg font-semibold">Today's schedule</h2>
-                  <p className="text-sm text-muted-foreground">Live classes across all grades</p>
+                  <h2 className="font-display text-lg font-semibold">My classes today</h2>
+                  <p className="text-sm text-muted-foreground">5 sessions · Math Department</p>
                 </div>
-                <button className="text-sm text-accent font-medium hover:underline">View timetable</button>
+                <button className="text-sm text-accent font-medium hover:underline">Full timetable</button>
               </div>
               <ul className="divide-y divide-border">
                 {schedule.map((c) => (
                   <li key={c.subject} className="py-4 flex items-center gap-4">
                     <div className="w-14 text-sm font-mono text-muted-foreground">{c.time}</div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{c.subject}</p>
-                      <p className="text-xs text-muted-foreground">{c.teacher} · {c.room}</p>
+                      <p className="font-medium truncate">{c.subject} · <span className="text-muted-foreground font-normal">{c.grade}</span></p>
+                      <p className="text-xs text-muted-foreground">{c.room} · {c.students} students</p>
                     </div>
                     <span
                       className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                         c.status === "Live"
                           ? "bg-accent text-accent-foreground"
+                          : c.status === "Done"
+                          ? "bg-[color:var(--success)]/15 text-[color:var(--success)]"
                           : c.status === "Next"
                           ? "bg-secondary text-secondary-foreground"
                           : "bg-muted text-muted-foreground"
@@ -226,108 +236,127 @@ function Index() {
               </ul>
             </div>
 
-            {/* Attendance chart */}
+            {/* Focus students */}
             <div className="rounded-xl bg-card border border-border p-6" style={{ boxShadow: "var(--shadow-soft)" }}>
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="font-display text-lg font-semibold">Attendance</h2>
-                  <p className="text-sm text-muted-foreground">This week</p>
+                  <h2 className="font-display text-lg font-semibold">Needs attention</h2>
+                  <p className="text-sm text-muted-foreground">Students to check in with</p>
                 </div>
-                <span className="text-xs px-2 py-1 rounded-md bg-secondary text-secondary-foreground">Avg 91.8%</span>
               </div>
-              <div className="flex items-end justify-between gap-2 h-44">
-                {attendanceBars.map((b) => (
-                  <div key={b.d} className="flex-1 flex flex-col items-center gap-2">
-                    <div className="w-full rounded-md bg-gradient-to-t from-primary to-accent" style={{ height: `${b.v}%` }} />
-                    <span className="text-xs text-muted-foreground">{b.d}</span>
-                  </div>
+              <ul className="space-y-3">
+                {focusStudents.map((s) => (
+                  <li key={s.name} className="flex items-start gap-3 p-3 rounded-lg hover:bg-secondary/60 transition-colors">
+                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary to-accent grid place-items-center text-primary-foreground text-xs font-semibold shrink-0">
+                      {s.name.split(" ").map((n) => n[0]).join("")}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium truncate">{s.name}</p>
+                        <span className="text-[10px] text-muted-foreground">{s.grade}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-snug mt-0.5">{s.note}</p>
+                    </div>
+                    {s.trend === "up" ? (
+                      <Star className="h-4 w-4 text-[color:var(--warning)] shrink-0 mt-1" />
+                    ) : (
+                      <Clock className="h-4 w-4 text-destructive shrink-0 mt-1" />
+                    )}
+                  </li>
                 ))}
-              </div>
-              <div className="mt-5 pt-5 border-t border-border grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <p className="text-muted-foreground text-xs">Present</p>
-                  <p className="font-display font-semibold text-lg">1,216</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground text-xs">Absent</p>
-                  <p className="font-display font-semibold text-lg">68</p>
-                </div>
-              </div>
+              </ul>
+              <button className="mt-4 w-full h-9 rounded-lg border border-border text-sm font-medium hover:bg-secondary transition">
+                View full roster
+              </button>
             </div>
           </section>
 
           {/* Lower row */}
           <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            {/* Recent enrollments */}
+            {/* Assignments to grade */}
             <div className="xl:col-span-2 rounded-xl bg-card border border-border overflow-hidden" style={{ boxShadow: "var(--shadow-soft)" }}>
               <div className="px-6 py-5 border-b border-border flex items-center justify-between">
                 <div>
-                  <h2 className="font-display text-lg font-semibold">Recent enrollments</h2>
-                  <p className="text-sm text-muted-foreground">14 new admissions this week</p>
+                  <h2 className="font-display text-lg font-semibold">Assignments to grade</h2>
+                  <p className="text-sm text-muted-foreground">28 submissions waiting</p>
                 </div>
-                <button className="text-sm text-accent font-medium hover:underline">See all</button>
+                <button className="text-sm text-accent font-medium hover:underline inline-flex items-center gap-1">
+                  <Plus className="h-3.5 w-3.5" /> New
+                </button>
               </div>
               <table className="w-full text-sm">
                 <thead className="bg-secondary/60 text-xs uppercase tracking-wider text-muted-foreground">
                   <tr>
-                    <th className="text-left font-medium px-6 py-3">Student</th>
-                    <th className="text-left font-medium px-6 py-3">Grade</th>
-                    <th className="text-left font-medium px-6 py-3">Date</th>
-                    <th className="text-left font-medium px-6 py-3">Status</th>
+                    <th className="text-left font-medium px-6 py-3">Assignment</th>
+                    <th className="text-left font-medium px-6 py-3">Class</th>
+                    <th className="text-left font-medium px-6 py-3">Due</th>
+                    <th className="text-left font-medium px-6 py-3">Submitted</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {enrollments.map((e) => (
-                    <tr key={e.name} className="border-t border-border">
-                      <td className="px-6 py-4 font-medium">{e.name}</td>
-                      <td className="px-6 py-4 text-muted-foreground">{e.grade}</td>
-                      <td className="px-6 py-4 text-muted-foreground">{e.date}</td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
-                            e.status === "Approved"
-                              ? "bg-[color:var(--success)]/15 text-[color:var(--success)]"
-                              : e.status === "Pending"
-                              ? "bg-[color:var(--warning)]/15 text-[color:var(--warning)]"
-                              : "bg-secondary text-secondary-foreground"
-                          }`}
-                        >
-                          {e.status === "Approved" ? <CheckCircle2 className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
-                          {e.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                  {assignments.map((a) => {
+                    const pct = Math.round((a.submitted / a.total) * 100);
+                    return (
+                      <tr key={a.title} className="border-t border-border hover:bg-secondary/40">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2.5">
+                            <Paperclip className="h-4 w-4 text-muted-foreground shrink-0" />
+                            <span className="font-medium">{a.title}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-muted-foreground">{a.class}</td>
+                        <td className="px-6 py-4">
+                          <span className={`text-xs font-medium ${a.due === "Today" ? "text-destructive" : "text-muted-foreground"}`}>
+                            {a.due}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 max-w-[80px] h-1.5 rounded-full bg-secondary overflow-hidden">
+                              <div className="h-full bg-gradient-to-r from-primary to-accent" style={{ width: `${pct}%` }} />
+                            </div>
+                            <span className="text-xs text-muted-foreground tabular-nums">{a.submitted}/{a.total}</span>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
 
-            {/* Announcements */}
+            {/* Messages */}
             <div className="rounded-xl bg-card border border-border p-6" style={{ boxShadow: "var(--shadow-soft)" }}>
               <div className="flex items-center justify-between mb-5">
-                <h2 className="font-display text-lg font-semibold">Announcements</h2>
-                <button className="text-xs text-accent font-medium hover:underline">Post</button>
+                <div>
+                  <h2 className="font-display text-lg font-semibold">Inbox</h2>
+                  <p className="text-xs text-muted-foreground">4 unread</p>
+                </div>
+                <button className="text-xs text-accent font-medium hover:underline">Open</button>
               </div>
               <ul className="space-y-4">
-                {announcements.map((a) => (
-                  <li key={a.title} className="group">
+                {messages.map((m) => (
+                  <li key={m.from} className="group">
                     <div className="flex items-start gap-3">
-                      <div className="mt-1 h-8 w-8 rounded-lg bg-secondary text-primary grid place-items-center shrink-0">
-                        <Bell className="h-4 w-4" />
+                      <div className="relative mt-0.5 h-9 w-9 rounded-full bg-secondary text-primary grid place-items-center shrink-0 font-semibold text-xs">
+                        {m.from.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                        {m.unread && <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-accent border-2 border-card" />}
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium leading-snug group-hover:text-accent transition-colors">
-                          {a.title}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">{a.meta}</p>
-                        <span className="inline-block mt-2 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-secondary text-secondary-foreground">
-                          {a.tag}
-                        </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className={`text-sm truncate ${m.unread ? "font-semibold" : "font-medium"}`}>{m.from}</p>
+                          <span className="text-[10px] text-muted-foreground shrink-0">{m.time}</span>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">{m.role}</p>
+                        <p className="text-xs text-muted-foreground/90 mt-1 line-clamp-2 leading-snug">{m.preview}</p>
                       </div>
                     </div>
                   </li>
                 ))}
               </ul>
+              <button className="mt-4 w-full h-9 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition inline-flex items-center justify-center gap-2">
+                <CheckCircle2 className="h-4 w-4" /> Mark all read
+              </button>
             </div>
           </section>
         </main>
