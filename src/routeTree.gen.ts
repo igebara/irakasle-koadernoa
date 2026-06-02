@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TimetableRouteImport } from './routes/timetable'
 import { Route as StudentsRouteImport } from './routes/students'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as GradebookRouteImport } from './routes/gradebook'
 import { Route as ClassesRouteImport } from './routes/classes'
 import { Route as AttendanceRouteImport } from './routes/attendance'
@@ -25,6 +26,11 @@ const TimetableRoute = TimetableRouteImport.update({
 const StudentsRoute = StudentsRouteImport.update({
   id: '/students',
   path: '/students',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GradebookRoute = GradebookRouteImport.update({
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/attendance': typeof AttendanceRoute
   '/classes': typeof ClassesRoute
   '/gradebook': typeof GradebookRoute
+  '/messages': typeof MessagesRoute
   '/students': typeof StudentsRoute
   '/timetable': typeof TimetableRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/attendance': typeof AttendanceRoute
   '/classes': typeof ClassesRoute
   '/gradebook': typeof GradebookRoute
+  '/messages': typeof MessagesRoute
   '/students': typeof StudentsRoute
   '/timetable': typeof TimetableRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/attendance': typeof AttendanceRoute
   '/classes': typeof ClassesRoute
   '/gradebook': typeof GradebookRoute
+  '/messages': typeof MessagesRoute
   '/students': typeof StudentsRoute
   '/timetable': typeof TimetableRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/attendance'
     | '/classes'
     | '/gradebook'
+    | '/messages'
     | '/students'
     | '/timetable'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/attendance'
     | '/classes'
     | '/gradebook'
+    | '/messages'
     | '/students'
     | '/timetable'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/attendance'
     | '/classes'
     | '/gradebook'
+    | '/messages'
     | '/students'
     | '/timetable'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   AttendanceRoute: typeof AttendanceRoute
   ClassesRoute: typeof ClassesRoute
   GradebookRoute: typeof GradebookRoute
+  MessagesRoute: typeof MessagesRoute
   StudentsRoute: typeof StudentsRoute
   TimetableRoute: typeof TimetableRoute
 }
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/students'
       fullPath: '/students'
       preLoaderRoute: typeof StudentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gradebook': {
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   AttendanceRoute: AttendanceRoute,
   ClassesRoute: ClassesRoute,
   GradebookRoute: GradebookRoute,
+  MessagesRoute: MessagesRoute,
   StudentsRoute: StudentsRoute,
   TimetableRoute: TimetableRoute,
 }
