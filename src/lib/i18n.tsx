@@ -1,0 +1,294 @@
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+
+export type Lang = "eu" | "es" | "en";
+
+export const languages: { code: Lang; label: string; flag: string }[] = [
+  { code: "eu", label: "Euskara", flag: "🇪🇸" },
+  { code: "es", label: "Español", flag: "🇪🇸" },
+  { code: "en", label: "English", flag: "🇬🇧" },
+];
+
+type Dict = Record<string, string>;
+
+const translations: Record<Lang, Dict> = {
+  eu: {
+    "brand.portal": "Irakasle Ataria",
+    "topbar.teacher": "Irakaslea",
+    "topbar.search": "Bilatu ikasleak, klaseak, lanak…",
+    "topbar.role": "Matematika · 9–12 maila",
+    "nav.myDay": "Nire eguna",
+    "nav.classes": "Klaseak",
+    "nav.attendance": "Asistentzia",
+    "nav.gradebook": "Notategia",
+    "nav.assignments": "Lanak",
+    "nav.students": "Ikasleak",
+    "nav.timetable": "Ordutegia",
+    "nav.messages": "Mezuak",
+    "nav.settings": "Ezarpenak",
+    "sidebar.nextClass": "Hurrengo klasea",
+    "sidebar.nextClassDetail": "12A maila · 301 gela",
+    "sidebar.openLesson": "Ireki saioa",
+    "hero.date": "Igandea · 2026ko maiatzak 31",
+    "hero.greeting": "Egun on, Sarah.",
+    "hero.intro": "Gaur 5 klase emango dituzu. Kalkulua 12A 32 minuturen buruan hasiko da — zure ikasgaia prest dago.",
+    "hero.takeAttendance": "Hartu asistentzia",
+    "hero.newAssignment": "Lan berria",
+    "stats.classesToday": "Gaurko klaseak",
+    "stats.classesToday.hint": "2 eginda · 3 falta",
+    "stats.attendancePending": "Asistentzia zain",
+    "stats.attendancePending.hint": "Hartu 14:00ak baino lehen",
+    "stats.toGrade": "Zuzentzeko lanak",
+    "stats.toGrade.hint": "4 klasetan",
+    "stats.unread": "Irakurri gabeko mezuak",
+    "stats.unread.hint": "3 gurasorengandik",
+    "schedule.title": "Gaurko nire klaseak",
+    "schedule.subtitle": "5 saio · Matematika Saila",
+    "schedule.full": "Ordutegi osoa",
+    "schedule.students": "ikasle",
+    "status.done": "Eginda",
+    "status.live": "Zuzenean",
+    "status.next": "Hurrengoa",
+    "status.upcoming": "Datorrena",
+    "focus.title": "Arreta behar dute",
+    "focus.subtitle": "Egiaztatu beharreko ikasleak",
+    "focus.viewAll": "Ikusi zerrenda osoa",
+    "assign.title": "Zuzentzeko lanak",
+    "assign.subtitle": "28 entrega zain",
+    "assign.new": "Berria",
+    "assign.col.assignment": "Lana",
+    "assign.col.class": "Klasea",
+    "assign.col.due": "Epea",
+    "assign.col.submitted": "Entregatuta",
+    "due.today": "Gaur",
+    "due.tomorrow": "Bihar",
+    "inbox.title": "Sarrera-ontzia",
+    "inbox.unread": "4 irakurri gabe",
+    "inbox.open": "Ireki",
+    "inbox.markAll": "Markatu denak irakurritzat",
+    "lang.label": "Hizkuntza",
+  },
+  es: {
+    "brand.portal": "Portal del Profesor",
+    "topbar.teacher": "Profesor",
+    "topbar.search": "Buscar alumnos, clases, tareas…",
+    "topbar.role": "Matemáticas · Curso 9–12",
+    "nav.myDay": "Mi día",
+    "nav.classes": "Clases",
+    "nav.attendance": "Asistencia",
+    "nav.gradebook": "Calificaciones",
+    "nav.assignments": "Tareas",
+    "nav.students": "Alumnos",
+    "nav.timetable": "Horario",
+    "nav.messages": "Mensajes",
+    "nav.settings": "Ajustes",
+    "sidebar.nextClass": "Próxima clase",
+    "sidebar.nextClassDetail": "Curso 12A · Aula 301",
+    "sidebar.openLesson": "Abrir clase",
+    "hero.date": "Domingo · 31 de mayo de 2026",
+    "hero.greeting": "Buenos días, Sarah.",
+    "hero.intro": "Hoy tienes 5 clases. Cálculo 12A empieza en 32 minutos — tu lección está lista.",
+    "hero.takeAttendance": "Pasar lista",
+    "hero.newAssignment": "Nueva tarea",
+    "stats.classesToday": "Clases hoy",
+    "stats.classesToday.hint": "2 hechas · 3 por delante",
+    "stats.attendancePending": "Asistencia pendiente",
+    "stats.attendancePending.hint": "Antes de las 14:00",
+    "stats.toGrade": "Tareas por corregir",
+    "stats.toGrade.hint": "En 4 clases",
+    "stats.unread": "Mensajes sin leer",
+    "stats.unread.hint": "De 3 padres",
+    "schedule.title": "Mis clases de hoy",
+    "schedule.subtitle": "5 sesiones · Departamento de Matemáticas",
+    "schedule.full": "Horario completo",
+    "schedule.students": "alumnos",
+    "status.done": "Hecha",
+    "status.live": "En curso",
+    "status.next": "Siguiente",
+    "status.upcoming": "Próxima",
+    "focus.title": "Requieren atención",
+    "focus.subtitle": "Alumnos para revisar",
+    "focus.viewAll": "Ver lista completa",
+    "assign.title": "Tareas por corregir",
+    "assign.subtitle": "28 entregas en espera",
+    "assign.new": "Nueva",
+    "assign.col.assignment": "Tarea",
+    "assign.col.class": "Clase",
+    "assign.col.due": "Plazo",
+    "assign.col.submitted": "Entregadas",
+    "due.today": "Hoy",
+    "due.tomorrow": "Mañana",
+    "inbox.title": "Bandeja de entrada",
+    "inbox.unread": "4 sin leer",
+    "inbox.open": "Abrir",
+    "inbox.markAll": "Marcar todo como leído",
+    "lang.label": "Idioma",
+  },
+  en: {
+    "brand.portal": "Teacher Portal",
+    "topbar.teacher": "Teacher",
+    "topbar.search": "Search students, classes, assignments…",
+    "topbar.role": "Mathematics · Grade 9–12",
+    "nav.myDay": "My day",
+    "nav.classes": "Classes",
+    "nav.attendance": "Attendance",
+    "nav.gradebook": "Gradebook",
+    "nav.assignments": "Assignments",
+    "nav.students": "Students",
+    "nav.timetable": "Timetable",
+    "nav.messages": "Messages",
+    "nav.settings": "Settings",
+    "sidebar.nextClass": "Next class",
+    "sidebar.nextClassDetail": "Grade 12A · Room 301",
+    "sidebar.openLesson": "Open lesson",
+    "hero.date": "Sunday · May 31, 2026",
+    "hero.greeting": "Good morning, Sarah.",
+    "hero.intro": "You teach 5 classes today. Calculus 12A starts in 32 minutes — your lesson plan is ready.",
+    "hero.takeAttendance": "Take attendance",
+    "hero.newAssignment": "New assignment",
+    "stats.classesToday": "Classes today",
+    "stats.classesToday.hint": "2 done · 3 ahead",
+    "stats.attendancePending": "Attendance pending",
+    "stats.attendancePending.hint": "Take before 2pm",
+    "stats.toGrade": "Assignments to grade",
+    "stats.toGrade.hint": "Across 4 classes",
+    "stats.unread": "Unread messages",
+    "stats.unread.hint": "From 3 parents",
+    "schedule.title": "My classes today",
+    "schedule.subtitle": "5 sessions · Math Department",
+    "schedule.full": "Full timetable",
+    "schedule.students": "students",
+    "status.done": "Done",
+    "status.live": "Live",
+    "status.next": "Next",
+    "status.upcoming": "Upcoming",
+    "focus.title": "Needs attention",
+    "focus.subtitle": "Students to check in with",
+    "focus.viewAll": "View full roster",
+    "assign.title": "Assignments to grade",
+    "assign.subtitle": "28 submissions waiting",
+    "assign.new": "New",
+    "assign.col.assignment": "Assignment",
+    "assign.col.class": "Class",
+    "assign.col.due": "Due",
+    "assign.col.submitted": "Submitted",
+    "due.today": "Today",
+    "due.tomorrow": "Tomorrow",
+    "inbox.title": "Inbox",
+    "inbox.unread": "4 unread",
+    "inbox.open": "Open",
+    "inbox.markAll": "Mark all read",
+    "lang.label": "Language",
+  },
+};
+
+type Ctx = { lang: Lang; setLang: (l: Lang) => void; t: (key: string) => string };
+const LanguageContext = createContext<Ctx | null>(null);
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [lang, setLangState] = useState<Lang>("eu");
+
+  useEffect(() => {
+    const stored = typeof window !== "undefined" ? window.localStorage.getItem("lang") : null;
+    if (stored === "eu" || stored === "es" || stored === "en") setLangState(stored);
+  }, []);
+
+  const setLang = (l: Lang) => {
+    setLangState(l);
+    if (typeof window !== "undefined") window.localStorage.setItem("lang", l);
+  };
+
+  const t = (key: string) => translations[lang][key] ?? translations.en[key] ?? key;
+
+  return <LanguageContext.Provider value={{ lang, setLang, t }}>{children}</LanguageContext.Provider>;
+}
+
+export function useLanguage() {
+  const ctx = useContext(LanguageContext);
+  if (!ctx) throw new Error("useLanguage must be used within LanguageProvider");
+  return ctx;
+}
+
+// Per-language data helpers for the dashboard's localized arrays.
+export function getLocalizedData(lang: Lang) {
+  const data = {
+    eu: {
+      schedule: [
+        { time: "08:00", subject: "Aljebra II", grade: "10A maila", room: "204 gela", students: 28, statusKey: "status.done" },
+        { time: "09:30", subject: "Geometria", grade: "9B maila", room: "204 gela", students: 26, statusKey: "status.done" },
+        { time: "11:00", subject: "Kalkulua", grade: "12A maila", room: "301 gela", students: 22, statusKey: "status.live" },
+        { time: "13:00", subject: "Estatistika", grade: "11C maila", room: "207 gela", students: 24, statusKey: "status.next" },
+        { time: "14:30", subject: "Matematika Kluba", grade: "Eskolaz kanpo", room: "204 gela", students: 14, statusKey: "status.upcoming" },
+      ],
+      assignments: [
+        { title: "Bigarren mailako ekuazioak — 4. ariketa-sorta", class: "10A maila", dueKey: "due.today", submitted: 24, total: 28 },
+        { title: "Geometria-frogapenak — 6. kapitulua", class: "9B maila", dueKey: "due.tomorrow", submitted: 19, total: 26 },
+        { title: "Limiteak eta jarraitutasuna proba", class: "12A maila", dueKey: null, dueLabel: "Eka 03", submitted: 11, total: 22 },
+        { title: "Datuen interpretazio fitxa", class: "11C maila", dueKey: null, dueLabel: "Eka 05", submitted: 6, total: 24 },
+      ],
+      messages: [
+        { from: "Johnson and.", role: "Gurasoa · Amara, 10A", preview: "Ostiraleko gurasoen bilera atzeratu dezakegu…", time: "12m", unread: true },
+        { from: "Liam Okonkwo", role: "Ikaslea · 9B", preview: "Ezin izango ditut frogapenak gaur entregatu…", time: "1 o", unread: true },
+        { from: "Martinez jn.", role: "Gurasoa · Sofia, 11C", preview: "Eskerrik asko erregresioari buruzko baliabide gehigarriengatik.", time: "3 o", unread: false },
+        { from: "Hassan dk.", role: "Saileko burua", preview: "Curriculumaren bilera ostegunera pasatu da, 16:00etara.", time: "Atzo", unread: false },
+      ],
+      focusStudents: [
+        { name: "Noah Chen", grade: "10A", note: "Azken 5 lanetatik 3 huts egin ditu", trend: "down" },
+        { name: "Priya Shah", grade: "12A", note: "Maila gorenekoa · sakontzeko prest", trend: "up" },
+        { name: "Marcus Bell", grade: "9B", note: "Asistentzia %78ra jaitsi da", trend: "down" },
+      ],
+    },
+    es: {
+      schedule: [
+        { time: "08:00", subject: "Álgebra II", grade: "Curso 10A", room: "Aula 204", students: 28, statusKey: "status.done" },
+        { time: "09:30", subject: "Geometría", grade: "Curso 9B", room: "Aula 204", students: 26, statusKey: "status.done" },
+        { time: "11:00", subject: "Cálculo", grade: "Curso 12A", room: "Aula 301", students: 22, statusKey: "status.live" },
+        { time: "13:00", subject: "Estadística", grade: "Curso 11C", room: "Aula 207", students: 24, statusKey: "status.next" },
+        { time: "14:30", subject: "Club de Matemáticas", grade: "Extraescolar", room: "Aula 204", students: 14, statusKey: "status.upcoming" },
+      ],
+      assignments: [
+        { title: "Ecuaciones cuadráticas — Ejercicios 4", class: "Curso 10A", dueKey: "due.today", submitted: 24, total: 28 },
+        { title: "Demostraciones de geometría — Capítulo 6", class: "Curso 9B", dueKey: "due.tomorrow", submitted: 19, total: 26 },
+        { title: "Prueba de límites y continuidad", class: "Curso 12A", dueKey: null, dueLabel: "3 jun", submitted: 11, total: 22 },
+        { title: "Ficha de interpretación de datos", class: "Curso 11C", dueKey: null, dueLabel: "5 jun", submitted: 6, total: 24 },
+      ],
+      messages: [
+        { from: "Sra. Johnson", role: "Madre · Amara, 10A", preview: "¿Podríamos posponer la reunión del viernes…?", time: "12m", unread: true },
+        { from: "Liam Okonkwo", role: "Alumno · 9B", preview: "No podré entregar las demostraciones hoy porque…", time: "1h", unread: true },
+        { from: "Sr. Martínez", role: "Padre · Sofía, 11C", preview: "Gracias por los recursos adicionales sobre regresión.", time: "3h", unread: false },
+        { from: "Dr. Hassan", role: "Jefe de Depto.", preview: "La reunión del currículo se mueve al jueves a las 16:00.", time: "Ayer", unread: false },
+      ],
+      focusStudents: [
+        { name: "Noah Chen", grade: "10A", note: "Falló 3 de las últimas 5 tareas", trend: "down" },
+        { name: "Priya Shah", grade: "12A", note: "Rendimiento alto · lista para ampliación", trend: "up" },
+        { name: "Marcus Bell", grade: "9B", note: "Asistencia bajó al 78%", trend: "down" },
+      ],
+    },
+    en: {
+      schedule: [
+        { time: "08:00", subject: "Algebra II", grade: "Grade 10A", room: "Room 204", students: 28, statusKey: "status.done" },
+        { time: "09:30", subject: "Geometry", grade: "Grade 9B", room: "Room 204", students: 26, statusKey: "status.done" },
+        { time: "11:00", subject: "Calculus", grade: "Grade 12A", room: "Room 301", students: 22, statusKey: "status.live" },
+        { time: "13:00", subject: "Statistics", grade: "Grade 11C", room: "Room 207", students: 24, statusKey: "status.next" },
+        { time: "14:30", subject: "Math Club", grade: "After-school", room: "Room 204", students: 14, statusKey: "status.upcoming" },
+      ],
+      assignments: [
+        { title: "Quadratic equations — Problem set 4", class: "Grade 10A", dueKey: "due.today", submitted: 24, total: 28 },
+        { title: "Geometry proofs — Chapter 6", class: "Grade 9B", dueKey: "due.tomorrow", submitted: 19, total: 26 },
+        { title: "Limits & continuity quiz", class: "Grade 12A", dueKey: null, dueLabel: "Jun 03", submitted: 11, total: 22 },
+        { title: "Data interpretation worksheet", class: "Grade 11C", dueKey: null, dueLabel: "Jun 05", submitted: 6, total: 24 },
+      ],
+      messages: [
+        { from: "Mrs. Johnson", role: "Parent · Amara, 10A", preview: "Could we reschedule Friday's parent meeting to…", time: "12m", unread: true },
+        { from: "Liam Okonkwo", role: "Student · 9B", preview: "I won't be able to submit the proofs today because…", time: "1h", unread: true },
+        { from: "Mr. Martinez", role: "Parent · Sofia, 11C", preview: "Thanks for the extra resources on regression.", time: "3h", unread: false },
+        { from: "Dr. Hassan", role: "Dept. Head", preview: "Curriculum review meeting moved to Thursday 4pm.", time: "Yesterday", unread: false },
+      ],
+      focusStudents: [
+        { name: "Noah Chen", grade: "10A", note: "Missed 3 of last 5 assignments", trend: "down" },
+        { name: "Priya Shah", grade: "12A", note: "Top performer · ready for extension", trend: "up" },
+        { name: "Marcus Bell", grade: "9B", note: "Attendance dropped to 78%", trend: "down" },
+      ],
+    },
+  };
+  return data[lang];
+}
