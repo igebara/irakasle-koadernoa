@@ -19,7 +19,9 @@ import {
   Star,
   Video,
   Paperclip,
+  Globe,
 } from "lucide-react";
+import { useLanguage, languages, getLocalizedData, type Lang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -33,54 +35,29 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const navItems = [
-  { label: "Nire eguna", icon: LayoutDashboard, active: true },
-  { label: "Klaseak", icon: BookOpen },
-  { label: "Asistentzia", icon: ClipboardCheck },
-  { label: "Notategia", icon: PenSquare },
-  { label: "Lanak", icon: FileText },
-  { label: "Ikasleak", icon: Users },
-  { label: "Ordutegia", icon: CalendarDays },
-  { label: "Mezuak", icon: MessageSquare, badge: 4 },
-  { label: "Ezarpenak", icon: Settings },
-];
-
-const stats = [
-  { label: "Gaurko klaseak", value: "5", hint: "2 eginda · 3 falta", icon: BookOpen },
-  { label: "Asistentzia zain", value: "3", hint: "Hartu 14:00ak baino lehen", icon: ClipboardCheck },
-  { label: "Zuzentzeko lanak", value: "28", hint: "4 klasetan", icon: PenSquare },
-  { label: "Irakurri gabeko mezuak", value: "4", hint: "3 gurasorengandik", icon: MessageSquare },
-];
-
-const schedule = [
-  { time: "08:00", subject: "Aljebra II", grade: "10A maila", room: "204 gela", students: 28, status: "Eginda" },
-  { time: "09:30", subject: "Geometria", grade: "9B maila", room: "204 gela", students: 26, status: "Eginda" },
-  { time: "11:00", subject: "Kalkulua", grade: "12A maila", room: "301 gela", students: 22, status: "Zuzenean" },
-  { time: "13:00", subject: "Estatistika", grade: "11C maila", room: "207 gela", students: 24, status: "Hurrengoa" },
-  { time: "14:30", subject: "Matematika Kluba", grade: "Eskolaz kanpo", room: "204 gela", students: 14, status: "Datorrena" },
-];
-
-const assignments = [
-  { title: "Bigarren mailako ekuazioak — 4. ariketa-sorta", class: "10A maila", due: "Gaur", submitted: 24, total: 28 },
-  { title: "Geometria-frogapenak — 6. kapitulua", class: "9B maila", due: "Bihar", submitted: 19, total: 26 },
-  { title: "Limiteak eta jarraitutasuna proba", class: "12A maila", due: "Eka 03", submitted: 11, total: 22 },
-  { title: "Datuen interpretazio fitxa", class: "11C maila", due: "Eka 05", submitted: 6, total: 24 },
-];
-
-const messages = [
-  { from: "Johnson and.", role: "Gurasoa · Amara, 10A", preview: "Ostiraleko gurasoen bilera atzeratu dezakegu…", time: "12m", unread: true },
-  { from: "Liam Okonkwo", role: "Ikaslea · 9B", preview: "Ezin izango ditut frogapenak gaur entregatu…", time: "1 o", unread: true },
-  { from: "Martinez jn.", role: "Gurasoa · Sofia, 11C", preview: "Eskerrik asko erregresioari buruzko baliabide gehigarriengatik.", time: "3 o", unread: false },
-  { from: "Hassan dk.", role: "Saileko burua", preview: "Curriculumaren bilera ostegunera pasatu da, 16:00etara.", time: "Atzo", unread: false },
-];
-
-const focusStudents = [
-  { name: "Noah Chen", grade: "10A", note: "Azken 5 lanetatik 3 huts egin ditu", trend: "down" },
-  { name: "Priya Shah", grade: "12A", note: "Maila gorenekoa · sakontzeko prest", trend: "up" },
-  { name: "Marcus Bell", grade: "9B", note: "Asistentzia %78ra jaitsi da", trend: "down" },
-];
-
 function Index() {
+  const { lang, setLang, t } = useLanguage();
+  const { schedule, assignments, messages, focusStudents } = getLocalizedData(lang);
+
+  const navItems = [
+    { key: "nav.myDay", icon: LayoutDashboard, active: true },
+    { key: "nav.classes", icon: BookOpen },
+    { key: "nav.attendance", icon: ClipboardCheck },
+    { key: "nav.gradebook", icon: PenSquare },
+    { key: "nav.assignments", icon: FileText },
+    { key: "nav.students", icon: Users },
+    { key: "nav.timetable", icon: CalendarDays },
+    { key: "nav.messages", icon: MessageSquare, badge: 4 },
+    { key: "nav.settings", icon: Settings },
+  ] as const;
+
+  const stats = [
+    { labelKey: "stats.classesToday", value: "5", hintKey: "stats.classesToday.hint", icon: BookOpen },
+    { labelKey: "stats.attendancePending", value: "3", hintKey: "stats.attendancePending.hint", icon: ClipboardCheck },
+    { labelKey: "stats.toGrade", value: "28", hintKey: "stats.toGrade.hint", icon: PenSquare },
+    { labelKey: "stats.unread", value: "4", hintKey: "stats.unread.hint", icon: MessageSquare },
+  ];
+
   return (
     <div className="min-h-screen flex bg-background text-foreground">
       {/* Sidebar */}
@@ -91,13 +68,13 @@ function Index() {
           </div>
           <div>
             <p className="font-display text-base font-semibold leading-tight">Northgate</p>
-            <p className="text-xs text-sidebar-foreground/60">Irakasle Ataria</p>
+            <p className="text-xs text-sidebar-foreground/60">{t("brand.portal")}</p>
           </div>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1">
           {navItems.map((item) => (
             <a
-              key={item.label}
+              key={item.key}
               href="#"
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
                 item.active
@@ -106,7 +83,7 @@ function Index() {
               }`}
             >
               <item.icon className="h-4 w-4" />
-              <span className="flex-1">{item.label}</span>
+              <span className="flex-1">{t(item.key)}</span>
               {item.badge ? (
                 <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-accent text-accent-foreground">
                   {item.badge}
@@ -116,11 +93,11 @@ function Index() {
           ))}
         </nav>
         <div className="m-3 p-4 rounded-xl bg-sidebar-accent text-sidebar-accent-foreground">
-          <p className="text-xs uppercase tracking-wider text-sidebar-foreground/60">Hurrengo klasea</p>
-          <p className="font-display text-lg font-semibold mt-1">Kalkulua · 11:00</p>
-          <p className="text-xs text-sidebar-foreground/60 mt-1">12A maila · 301 gela</p>
+          <p className="text-xs uppercase tracking-wider text-sidebar-foreground/60">{t("sidebar.nextClass")}</p>
+          <p className="font-display text-lg font-semibold mt-1">{schedule[2].subject} · 11:00</p>
+          <p className="text-xs text-sidebar-foreground/60 mt-1">{t("sidebar.nextClassDetail")}</p>
           <button className="mt-3 w-full h-8 rounded-md bg-sidebar-primary text-sidebar-primary-foreground text-xs font-medium hover:opacity-90 inline-flex items-center justify-center gap-1.5">
-            <Video className="h-3 w-3" /> Ireki saioa
+            <Video className="h-3 w-3" /> {t("sidebar.openLesson")}
           </button>
         </div>
       </aside>
@@ -131,14 +108,32 @@ function Index() {
         <header className="h-16 border-b border-border bg-card/60 backdrop-blur px-4 md:px-8 flex items-center gap-4">
           <div className="flex items-center gap-2 lg:hidden">
             <div className="h-8 w-8 rounded-lg bg-primary text-primary-foreground grid place-items-center font-display font-bold text-sm">N</div>
-            <span className="font-display font-semibold">Irakaslea</span>
+            <span className="font-display font-semibold">{t("topbar.teacher")}</span>
           </div>
           <div className="flex-1 max-w-md relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
-              placeholder="Bilatu ikasleak, klaseak, lanak…"
+              placeholder={t("topbar.search")}
               className="w-full h-10 pl-10 pr-3 rounded-lg bg-secondary border border-transparent focus:border-ring focus:bg-background outline-none text-sm"
             />
+          </div>
+          {/* Language selector */}
+          <div className="relative">
+            <label htmlFor="lang-select" className="sr-only">{t("lang.label")}</label>
+            <Globe className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+            <select
+              id="lang-select"
+              value={lang}
+              onChange={(e) => setLang(e.target.value as Lang)}
+              className="h-10 pl-8 pr-3 rounded-lg bg-secondary border border-transparent hover:border-border focus:border-ring focus:bg-background outline-none text-sm font-medium cursor-pointer appearance-none"
+              aria-label={t("lang.label")}
+            >
+              {languages.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.code.toUpperCase()} · {l.label}
+                </option>
+              ))}
+            </select>
           </div>
           <button className="relative h-10 w-10 grid place-items-center rounded-lg hover:bg-secondary">
             <Bell className="h-4 w-4" />
@@ -150,7 +145,7 @@ function Index() {
             </div>
             <div className="hidden md:block leading-tight">
               <p className="text-sm font-medium">Sarah Reyes</p>
-              <p className="text-xs text-muted-foreground">Matematika · 9–12 maila</p>
+              <p className="text-xs text-muted-foreground">{t("topbar.role")}</p>
             </div>
           </div>
         </header>
@@ -163,18 +158,18 @@ function Index() {
           >
             <div className="relative z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary-foreground/70">Igandea · 2026ko maiatzak 31</p>
-                <h1 className="font-display text-3xl md:text-4xl font-semibold mt-2">Egun on, Sarah.</h1>
+                <p className="text-xs uppercase tracking-[0.2em] text-primary-foreground/70">{t("hero.date")}</p>
+                <h1 className="font-display text-3xl md:text-4xl font-semibold mt-2">{t("hero.greeting")}</h1>
                 <p className="text-primary-foreground/80 mt-2 max-w-xl">
-                  Gaur 5 klase emango dituzu. Kalkulua 12A 32 minuturen buruan hasiko da — zure ikasgaia prest dago.
+                  {t("hero.intro")}
                 </p>
               </div>
               <div className="flex gap-2">
                 <button className="h-10 px-4 rounded-lg bg-primary-foreground text-primary text-sm font-medium hover:bg-primary-foreground/90 transition">
-                  Hartu asistentzia
+                  {t("hero.takeAttendance")}
                 </button>
                 <button className="h-10 px-4 rounded-lg bg-primary-foreground/10 border border-primary-foreground/20 text-sm font-medium hover:bg-primary-foreground/20 transition flex items-center gap-2">
-                  <Plus className="h-4 w-4" /> Lan berria
+                  <Plus className="h-4 w-4" /> {t("hero.newAssignment")}
                 </button>
               </div>
             </div>
@@ -185,7 +180,7 @@ function Index() {
           {/* Stats */}
           <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             {stats.map((s) => (
-              <div key={s.label} className="rounded-xl bg-card border border-border p-5" style={{ boxShadow: "var(--shadow-soft)" }}>
+              <div key={s.labelKey} className="rounded-xl bg-card border border-border p-5" style={{ boxShadow: "var(--shadow-soft)" }}>
                 <div className="flex items-center justify-between">
                   <div className="h-10 w-10 rounded-lg bg-secondary text-primary grid place-items-center">
                     <s.icon className="h-5 w-5" />
@@ -193,8 +188,8 @@ function Index() {
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <p className="font-display text-2xl font-semibold mt-4">{s.value}</p>
-                <p className="text-sm font-medium mt-1">{s.label}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{s.hint}</p>
+                <p className="text-sm font-medium mt-1">{t(s.labelKey)}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t(s.hintKey)}</p>
               </div>
             ))}
           </section>
@@ -205,10 +200,10 @@ function Index() {
             <div className="xl:col-span-2 rounded-xl bg-card border border-border p-6" style={{ boxShadow: "var(--shadow-soft)" }}>
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="font-display text-lg font-semibold">Gaurko nire klaseak</h2>
-                  <p className="text-sm text-muted-foreground">5 saio · Matematika Saila</p>
+                  <h2 className="font-display text-lg font-semibold">{t("schedule.title")}</h2>
+                  <p className="text-sm text-muted-foreground">{t("schedule.subtitle")}</p>
                 </div>
-                <button className="text-sm text-accent font-medium hover:underline">Ordutegi osoa</button>
+                <button className="text-sm text-accent font-medium hover:underline">{t("schedule.full")}</button>
               </div>
               <ul className="divide-y divide-border">
                 {schedule.map((c) => (
@@ -216,20 +211,20 @@ function Index() {
                     <div className="w-14 text-sm font-mono text-muted-foreground">{c.time}</div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate">{c.subject} · <span className="text-muted-foreground font-normal">{c.grade}</span></p>
-                      <p className="text-xs text-muted-foreground">{c.room} · {c.students} ikasle</p>
+                      <p className="text-xs text-muted-foreground">{c.room} · {c.students} {t("schedule.students")}</p>
                     </div>
                     <span
                       className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                        c.status === "Zuzenean"
+                        c.statusKey === "status.live"
                           ? "bg-accent text-accent-foreground"
-                          : c.status === "Eginda"
+                          : c.statusKey === "status.done"
                           ? "bg-[color:var(--success)]/15 text-[color:var(--success)]"
-                          : c.status === "Hurrengoa"
+                          : c.statusKey === "status.next"
                           ? "bg-secondary text-secondary-foreground"
                           : "bg-muted text-muted-foreground"
                       }`}
                     >
-                      {c.status}
+                      {t(c.statusKey)}
                     </span>
                   </li>
                 ))}
@@ -240,8 +235,8 @@ function Index() {
             <div className="rounded-xl bg-card border border-border p-6" style={{ boxShadow: "var(--shadow-soft)" }}>
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="font-display text-lg font-semibold">Arreta behar dute</h2>
-                  <p className="text-sm text-muted-foreground">Egiaztatu beharreko ikasleak</p>
+                  <h2 className="font-display text-lg font-semibold">{t("focus.title")}</h2>
+                  <p className="text-sm text-muted-foreground">{t("focus.subtitle")}</p>
                 </div>
               </div>
               <ul className="space-y-3">
@@ -266,7 +261,7 @@ function Index() {
                 ))}
               </ul>
               <button className="mt-4 w-full h-9 rounded-lg border border-border text-sm font-medium hover:bg-secondary transition">
-                Ikusi zerrenda osoa
+                {t("focus.viewAll")}
               </button>
             </div>
           </section>
@@ -277,25 +272,27 @@ function Index() {
             <div className="xl:col-span-2 rounded-xl bg-card border border-border overflow-hidden" style={{ boxShadow: "var(--shadow-soft)" }}>
               <div className="px-6 py-5 border-b border-border flex items-center justify-between">
                 <div>
-                  <h2 className="font-display text-lg font-semibold">Zuzentzeko lanak</h2>
-                  <p className="text-sm text-muted-foreground">28 entrega zain</p>
+                  <h2 className="font-display text-lg font-semibold">{t("assign.title")}</h2>
+                  <p className="text-sm text-muted-foreground">{t("assign.subtitle")}</p>
                 </div>
                 <button className="text-sm text-accent font-medium hover:underline inline-flex items-center gap-1">
-                  <Plus className="h-3.5 w-3.5" /> Berria
+                  <Plus className="h-3.5 w-3.5" /> {t("assign.new")}
                 </button>
               </div>
               <table className="w-full text-sm">
                 <thead className="bg-secondary/60 text-xs uppercase tracking-wider text-muted-foreground">
                   <tr>
-                    <th className="text-left font-medium px-6 py-3">Lana</th>
-                    <th className="text-left font-medium px-6 py-3">Klasea</th>
-                    <th className="text-left font-medium px-6 py-3">Epea</th>
-                    <th className="text-left font-medium px-6 py-3">Entregatuta</th>
+                    <th className="text-left font-medium px-6 py-3">{t("assign.col.assignment")}</th>
+                    <th className="text-left font-medium px-6 py-3">{t("assign.col.class")}</th>
+                    <th className="text-left font-medium px-6 py-3">{t("assign.col.due")}</th>
+                    <th className="text-left font-medium px-6 py-3">{t("assign.col.submitted")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {assignments.map((a) => {
                     const pct = Math.round((a.submitted / a.total) * 100);
+                    const dueLabel = a.dueKey ? t(a.dueKey) : a.dueLabel ?? "";
+                    const isUrgent = a.dueKey === "due.today";
                     return (
                       <tr key={a.title} className="border-t border-border hover:bg-secondary/40">
                         <td className="px-6 py-4">
@@ -306,8 +303,8 @@ function Index() {
                         </td>
                         <td className="px-6 py-4 text-muted-foreground">{a.class}</td>
                         <td className="px-6 py-4">
-                          <span className={`text-xs font-medium ${a.due === "Gaur" ? "text-destructive" : "text-muted-foreground"}`}>
-                            {a.due}
+                          <span className={`text-xs font-medium ${isUrgent ? "text-destructive" : "text-muted-foreground"}`}>
+                            {dueLabel}
                           </span>
                         </td>
                         <td className="px-6 py-4">
@@ -329,10 +326,10 @@ function Index() {
             <div className="rounded-xl bg-card border border-border p-6" style={{ boxShadow: "var(--shadow-soft)" }}>
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="font-display text-lg font-semibold">Sarrera-ontzia</h2>
-                  <p className="text-xs text-muted-foreground">4 irakurri gabe</p>
+                  <h2 className="font-display text-lg font-semibold">{t("inbox.title")}</h2>
+                  <p className="text-xs text-muted-foreground">{t("inbox.unread")}</p>
                 </div>
-                <button className="text-xs text-accent font-medium hover:underline">Ireki</button>
+                <button className="text-xs text-accent font-medium hover:underline">{t("inbox.open")}</button>
               </div>
               <ul className="space-y-4">
                 {messages.map((m) => (
@@ -355,7 +352,7 @@ function Index() {
                 ))}
               </ul>
               <button className="mt-4 w-full h-9 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition inline-flex items-center justify-center gap-2">
-                <CheckCircle2 className="h-4 w-4" /> Markatu denak irakurritzat
+                <CheckCircle2 className="h-4 w-4" /> {t("inbox.markAll")}
               </button>
             </div>
           </section>
