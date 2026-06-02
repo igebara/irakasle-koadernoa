@@ -24,60 +24,60 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Teacher Portal — Northgate Academy" },
-      { name: "description", content: "Teacher portal: classes, attendance, gradebook, assignments and parent messages." },
-      { property: "og:title", content: "Teacher Portal — Northgate Academy" },
-      { property: "og:description", content: "Teacher portal: classes, attendance, gradebook, assignments and parent messages." },
+      { title: "Irakasle Ataria — Northgate Akademia" },
+      { name: "description", content: "Irakasle ataria: klaseak, asistentzia, notategia, lanak eta gurasoen mezuak." },
+      { property: "og:title", content: "Irakasle Ataria — Northgate Akademia" },
+      { property: "og:description", content: "Irakasle ataria: klaseak, asistentzia, notategia, lanak eta gurasoen mezuak." },
     ],
   }),
   component: Index,
 });
 
 const navItems = [
-  { label: "My day", icon: LayoutDashboard, active: true },
-  { label: "Classes", icon: BookOpen },
-  { label: "Attendance", icon: ClipboardCheck },
-  { label: "Gradebook", icon: PenSquare },
-  { label: "Assignments", icon: FileText },
-  { label: "Students", icon: Users },
-  { label: "Timetable", icon: CalendarDays },
-  { label: "Messages", icon: MessageSquare, badge: 4 },
-  { label: "Settings", icon: Settings },
+  { label: "Nire eguna", icon: LayoutDashboard, active: true },
+  { label: "Klaseak", icon: BookOpen },
+  { label: "Asistentzia", icon: ClipboardCheck },
+  { label: "Notategia", icon: PenSquare },
+  { label: "Lanak", icon: FileText },
+  { label: "Ikasleak", icon: Users },
+  { label: "Ordutegia", icon: CalendarDays },
+  { label: "Mezuak", icon: MessageSquare, badge: 4 },
+  { label: "Ezarpenak", icon: Settings },
 ];
 
 const stats = [
-  { label: "Classes today", value: "5", hint: "2 done · 3 ahead", icon: BookOpen },
-  { label: "Attendance pending", value: "3", hint: "Take before 2pm", icon: ClipboardCheck },
-  { label: "Assignments to grade", value: "28", hint: "Across 4 classes", icon: PenSquare },
-  { label: "Unread messages", value: "4", hint: "From 3 parents", icon: MessageSquare },
+  { label: "Gaurko klaseak", value: "5", hint: "2 eginda · 3 falta", icon: BookOpen },
+  { label: "Asistentzia zain", value: "3", hint: "Hartu 14:00ak baino lehen", icon: ClipboardCheck },
+  { label: "Zuzentzeko lanak", value: "28", hint: "4 klasetan", icon: PenSquare },
+  { label: "Irakurri gabeko mezuak", value: "4", hint: "3 gurasorengandik", icon: MessageSquare },
 ];
 
 const schedule = [
-  { time: "08:00", subject: "Algebra II", grade: "Grade 10A", room: "Room 204", students: 28, status: "Done" },
-  { time: "09:30", subject: "Geometry", grade: "Grade 9B", room: "Room 204", students: 26, status: "Done" },
-  { time: "11:00", subject: "Calculus", grade: "Grade 12A", room: "Room 301", students: 22, status: "Live" },
-  { time: "13:00", subject: "Statistics", grade: "Grade 11C", room: "Room 207", students: 24, status: "Next" },
-  { time: "14:30", subject: "Math Club", grade: "After-school", room: "Room 204", students: 14, status: "Upcoming" },
+  { time: "08:00", subject: "Aljebra II", grade: "10A maila", room: "204 gela", students: 28, status: "Eginda" },
+  { time: "09:30", subject: "Geometria", grade: "9B maila", room: "204 gela", students: 26, status: "Eginda" },
+  { time: "11:00", subject: "Kalkulua", grade: "12A maila", room: "301 gela", students: 22, status: "Zuzenean" },
+  { time: "13:00", subject: "Estatistika", grade: "11C maila", room: "207 gela", students: 24, status: "Hurrengoa" },
+  { time: "14:30", subject: "Matematika Kluba", grade: "Eskolaz kanpo", room: "204 gela", students: 14, status: "Datorrena" },
 ];
 
 const assignments = [
-  { title: "Quadratic equations — Problem set 4", class: "Grade 10A", due: "Today", submitted: 24, total: 28 },
-  { title: "Geometry proofs — Chapter 6", class: "Grade 9B", due: "Tomorrow", submitted: 19, total: 26 },
-  { title: "Limits & continuity quiz", class: "Grade 12A", due: "Jun 03", submitted: 11, total: 22 },
-  { title: "Data interpretation worksheet", class: "Grade 11C", due: "Jun 05", submitted: 6, total: 24 },
+  { title: "Bigarren mailako ekuazioak — 4. ariketa-sorta", class: "10A maila", due: "Gaur", submitted: 24, total: 28 },
+  { title: "Geometria-frogapenak — 6. kapitulua", class: "9B maila", due: "Bihar", submitted: 19, total: 26 },
+  { title: "Limiteak eta jarraitutasuna proba", class: "12A maila", due: "Eka 03", submitted: 11, total: 22 },
+  { title: "Datuen interpretazio fitxa", class: "11C maila", due: "Eka 05", submitted: 6, total: 24 },
 ];
 
 const messages = [
-  { from: "Mrs. Johnson", role: "Parent · Amara, 10A", preview: "Could we reschedule Friday's parent meeting to…", time: "12m", unread: true },
-  { from: "Liam Okonkwo", role: "Student · 9B", preview: "I won't be able to submit the proofs today because…", time: "1h", unread: true },
-  { from: "Mr. Martinez", role: "Parent · Sofia, 11C", preview: "Thanks for the extra resources on regression.", time: "3h", unread: false },
-  { from: "Dr. Hassan", role: "Dept. Head", preview: "Curriculum review meeting moved to Thursday 4pm.", time: "Yesterday", unread: false },
+  { from: "Johnson and.", role: "Gurasoa · Amara, 10A", preview: "Ostiraleko gurasoen bilera atzeratu dezakegu…", time: "12m", unread: true },
+  { from: "Liam Okonkwo", role: "Ikaslea · 9B", preview: "Ezin izango ditut frogapenak gaur entregatu…", time: "1 o", unread: true },
+  { from: "Martinez jn.", role: "Gurasoa · Sofia, 11C", preview: "Eskerrik asko erregresioari buruzko baliabide gehigarriengatik.", time: "3 o", unread: false },
+  { from: "Hassan dk.", role: "Saileko burua", preview: "Curriculumaren bilera ostegunera pasatu da, 16:00etara.", time: "Atzo", unread: false },
 ];
 
 const focusStudents = [
-  { name: "Noah Chen", grade: "10A", note: "Missed 3 of last 5 assignments", trend: "down" },
-  { name: "Priya Shah", grade: "12A", note: "Top performer · ready for extension", trend: "up" },
-  { name: "Marcus Bell", grade: "9B", note: "Attendance dropped to 78%", trend: "down" },
+  { name: "Noah Chen", grade: "10A", note: "Azken 5 lanetatik 3 huts egin ditu", trend: "down" },
+  { name: "Priya Shah", grade: "12A", note: "Maila gorenekoa · sakontzeko prest", trend: "up" },
+  { name: "Marcus Bell", grade: "9B", note: "Asistentzia %78ra jaitsi da", trend: "down" },
 ];
 
 function Index() {
@@ -91,7 +91,7 @@ function Index() {
           </div>
           <div>
             <p className="font-display text-base font-semibold leading-tight">Northgate</p>
-            <p className="text-xs text-sidebar-foreground/60">Teacher Portal</p>
+            <p className="text-xs text-sidebar-foreground/60">Irakasle Ataria</p>
           </div>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1">
@@ -116,11 +116,11 @@ function Index() {
           ))}
         </nav>
         <div className="m-3 p-4 rounded-xl bg-sidebar-accent text-sidebar-accent-foreground">
-          <p className="text-xs uppercase tracking-wider text-sidebar-foreground/60">Next class</p>
-          <p className="font-display text-lg font-semibold mt-1">Calculus · 11:00</p>
-          <p className="text-xs text-sidebar-foreground/60 mt-1">Grade 12A · Room 301</p>
+          <p className="text-xs uppercase tracking-wider text-sidebar-foreground/60">Hurrengo klasea</p>
+          <p className="font-display text-lg font-semibold mt-1">Kalkulua · 11:00</p>
+          <p className="text-xs text-sidebar-foreground/60 mt-1">12A maila · 301 gela</p>
           <button className="mt-3 w-full h-8 rounded-md bg-sidebar-primary text-sidebar-primary-foreground text-xs font-medium hover:opacity-90 inline-flex items-center justify-center gap-1.5">
-            <Video className="h-3 w-3" /> Open lesson
+            <Video className="h-3 w-3" /> Ireki saioa
           </button>
         </div>
       </aside>
@@ -131,12 +131,12 @@ function Index() {
         <header className="h-16 border-b border-border bg-card/60 backdrop-blur px-4 md:px-8 flex items-center gap-4">
           <div className="flex items-center gap-2 lg:hidden">
             <div className="h-8 w-8 rounded-lg bg-primary text-primary-foreground grid place-items-center font-display font-bold text-sm">N</div>
-            <span className="font-display font-semibold">Teacher</span>
+            <span className="font-display font-semibold">Irakaslea</span>
           </div>
           <div className="flex-1 max-w-md relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
-              placeholder="Search students, classes, assignments…"
+              placeholder="Bilatu ikasleak, klaseak, lanak…"
               className="w-full h-10 pl-10 pr-3 rounded-lg bg-secondary border border-transparent focus:border-ring focus:bg-background outline-none text-sm"
             />
           </div>
@@ -150,7 +150,7 @@ function Index() {
             </div>
             <div className="hidden md:block leading-tight">
               <p className="text-sm font-medium">Sarah Reyes</p>
-              <p className="text-xs text-muted-foreground">Mathematics · Grade 9–12</p>
+              <p className="text-xs text-muted-foreground">Matematika · 9–12 maila</p>
             </div>
           </div>
         </header>
@@ -163,18 +163,18 @@ function Index() {
           >
             <div className="relative z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary-foreground/70">Sunday · May 31, 2026</p>
-                <h1 className="font-display text-3xl md:text-4xl font-semibold mt-2">Good morning, Sarah.</h1>
+                <p className="text-xs uppercase tracking-[0.2em] text-primary-foreground/70">Igandea · 2026ko maiatzak 31</p>
+                <h1 className="font-display text-3xl md:text-4xl font-semibold mt-2">Egun on, Sarah.</h1>
                 <p className="text-primary-foreground/80 mt-2 max-w-xl">
-                  You teach 5 classes today. Calculus 12A starts in 32 minutes — your lesson plan is ready.
+                  Gaur 5 klase emango dituzu. Kalkulua 12A 32 minuturen buruan hasiko da — zure ikasgaia prest dago.
                 </p>
               </div>
               <div className="flex gap-2">
                 <button className="h-10 px-4 rounded-lg bg-primary-foreground text-primary text-sm font-medium hover:bg-primary-foreground/90 transition">
-                  Take attendance
+                  Hartu asistentzia
                 </button>
                 <button className="h-10 px-4 rounded-lg bg-primary-foreground/10 border border-primary-foreground/20 text-sm font-medium hover:bg-primary-foreground/20 transition flex items-center gap-2">
-                  <Plus className="h-4 w-4" /> New assignment
+                  <Plus className="h-4 w-4" /> Lan berria
                 </button>
               </div>
             </div>
@@ -205,10 +205,10 @@ function Index() {
             <div className="xl:col-span-2 rounded-xl bg-card border border-border p-6" style={{ boxShadow: "var(--shadow-soft)" }}>
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="font-display text-lg font-semibold">My classes today</h2>
-                  <p className="text-sm text-muted-foreground">5 sessions · Math Department</p>
+                  <h2 className="font-display text-lg font-semibold">Gaurko nire klaseak</h2>
+                  <p className="text-sm text-muted-foreground">5 saio · Matematika Saila</p>
                 </div>
-                <button className="text-sm text-accent font-medium hover:underline">Full timetable</button>
+                <button className="text-sm text-accent font-medium hover:underline">Ordutegi osoa</button>
               </div>
               <ul className="divide-y divide-border">
                 {schedule.map((c) => (
@@ -216,15 +216,15 @@ function Index() {
                     <div className="w-14 text-sm font-mono text-muted-foreground">{c.time}</div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate">{c.subject} · <span className="text-muted-foreground font-normal">{c.grade}</span></p>
-                      <p className="text-xs text-muted-foreground">{c.room} · {c.students} students</p>
+                      <p className="text-xs text-muted-foreground">{c.room} · {c.students} ikasle</p>
                     </div>
                     <span
                       className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                        c.status === "Live"
+                        c.status === "Zuzenean"
                           ? "bg-accent text-accent-foreground"
-                          : c.status === "Done"
+                          : c.status === "Eginda"
                           ? "bg-[color:var(--success)]/15 text-[color:var(--success)]"
-                          : c.status === "Next"
+                          : c.status === "Hurrengoa"
                           ? "bg-secondary text-secondary-foreground"
                           : "bg-muted text-muted-foreground"
                       }`}
@@ -240,8 +240,8 @@ function Index() {
             <div className="rounded-xl bg-card border border-border p-6" style={{ boxShadow: "var(--shadow-soft)" }}>
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="font-display text-lg font-semibold">Needs attention</h2>
-                  <p className="text-sm text-muted-foreground">Students to check in with</p>
+                  <h2 className="font-display text-lg font-semibold">Arreta behar dute</h2>
+                  <p className="text-sm text-muted-foreground">Egiaztatu beharreko ikasleak</p>
                 </div>
               </div>
               <ul className="space-y-3">
@@ -266,7 +266,7 @@ function Index() {
                 ))}
               </ul>
               <button className="mt-4 w-full h-9 rounded-lg border border-border text-sm font-medium hover:bg-secondary transition">
-                View full roster
+                Ikusi zerrenda osoa
               </button>
             </div>
           </section>
@@ -277,20 +277,20 @@ function Index() {
             <div className="xl:col-span-2 rounded-xl bg-card border border-border overflow-hidden" style={{ boxShadow: "var(--shadow-soft)" }}>
               <div className="px-6 py-5 border-b border-border flex items-center justify-between">
                 <div>
-                  <h2 className="font-display text-lg font-semibold">Assignments to grade</h2>
-                  <p className="text-sm text-muted-foreground">28 submissions waiting</p>
+                  <h2 className="font-display text-lg font-semibold">Zuzentzeko lanak</h2>
+                  <p className="text-sm text-muted-foreground">28 entrega zain</p>
                 </div>
                 <button className="text-sm text-accent font-medium hover:underline inline-flex items-center gap-1">
-                  <Plus className="h-3.5 w-3.5" /> New
+                  <Plus className="h-3.5 w-3.5" /> Berria
                 </button>
               </div>
               <table className="w-full text-sm">
                 <thead className="bg-secondary/60 text-xs uppercase tracking-wider text-muted-foreground">
                   <tr>
-                    <th className="text-left font-medium px-6 py-3">Assignment</th>
-                    <th className="text-left font-medium px-6 py-3">Class</th>
-                    <th className="text-left font-medium px-6 py-3">Due</th>
-                    <th className="text-left font-medium px-6 py-3">Submitted</th>
+                    <th className="text-left font-medium px-6 py-3">Lana</th>
+                    <th className="text-left font-medium px-6 py-3">Klasea</th>
+                    <th className="text-left font-medium px-6 py-3">Epea</th>
+                    <th className="text-left font-medium px-6 py-3">Entregatuta</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -306,7 +306,7 @@ function Index() {
                         </td>
                         <td className="px-6 py-4 text-muted-foreground">{a.class}</td>
                         <td className="px-6 py-4">
-                          <span className={`text-xs font-medium ${a.due === "Today" ? "text-destructive" : "text-muted-foreground"}`}>
+                          <span className={`text-xs font-medium ${a.due === "Gaur" ? "text-destructive" : "text-muted-foreground"}`}>
                             {a.due}
                           </span>
                         </td>
@@ -329,10 +329,10 @@ function Index() {
             <div className="rounded-xl bg-card border border-border p-6" style={{ boxShadow: "var(--shadow-soft)" }}>
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="font-display text-lg font-semibold">Inbox</h2>
-                  <p className="text-xs text-muted-foreground">4 unread</p>
+                  <h2 className="font-display text-lg font-semibold">Sarrera-ontzia</h2>
+                  <p className="text-xs text-muted-foreground">4 irakurri gabe</p>
                 </div>
-                <button className="text-xs text-accent font-medium hover:underline">Open</button>
+                <button className="text-xs text-accent font-medium hover:underline">Ireki</button>
               </div>
               <ul className="space-y-4">
                 {messages.map((m) => (
@@ -355,7 +355,7 @@ function Index() {
                 ))}
               </ul>
               <button className="mt-4 w-full h-9 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition inline-flex items-center justify-center gap-2">
-                <CheckCircle2 className="h-4 w-4" /> Mark all read
+                <CheckCircle2 className="h-4 w-4" /> Markatu denak irakurritzat
               </button>
             </div>
           </section>
