@@ -39,7 +39,7 @@ function Index() {
   const { lang, setLang, t } = useLanguage();
   const { schedule, assignments, messages, focusStudents } = getLocalizedData(lang);
 
-  const navItems = [
+  const navItems: { key: string; icon: typeof LayoutDashboard; active?: boolean; badge?: number }[] = [
     { key: "nav.myDay", icon: LayoutDashboard, active: true },
     { key: "nav.classes", icon: BookOpen },
     { key: "nav.attendance", icon: ClipboardCheck },
@@ -49,7 +49,7 @@ function Index() {
     { key: "nav.timetable", icon: CalendarDays },
     { key: "nav.messages", icon: MessageSquare, badge: 4 },
     { key: "nav.settings", icon: Settings },
-  ] as const;
+  ];
 
   const stats = [
     { labelKey: "stats.classesToday", value: "5", hintKey: "stats.classesToday.hint", icon: BookOpen },
