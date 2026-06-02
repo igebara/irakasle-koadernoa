@@ -27,9 +27,8 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { lang, setLang, t } = useLanguage();
+  const { lang, t } = useLanguage();
   const { schedule, assignments, messages, focusStudents } = getLocalizedData(lang);
-  void setLang;
 
   const stats = [
     { labelKey: "stats.classesToday", value: "5", hintKey: "stats.classesToday.hint", icon: BookOpen },
