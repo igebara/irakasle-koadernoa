@@ -3,6 +3,7 @@ import { AppShell, PageHeader } from "@/components/AppShell";
 import { useLanguage } from "@/lib/i18n";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { CompetencyMeter, CompetencyLegend, gradeToLevel, competencyCatalog } from "@/components/CompetencyMeter";
 
 export const Route = createFileRoute("/gradebook")({
   head: () => ({ meta: [{ title: "Gradebook — Northgate" }] }),
@@ -105,10 +106,14 @@ function GradebookPage() {
   const { t, lang } = useLanguage();
   const [selectedSubject, setSelectedSubject] = useState("algebra");
   const [isOpen, setIsOpen] = useState(false);
+  const [view, setView] = useState<"numeric" | "competency">("competency");
 
   const subjectList = subjects[lang] || subjects.eu;
   const currentSubject = subjectList.find((s) => s.key === selectedSubject);
   const data = gradeData[selectedSubject];
+  const comps = competencyCatalog[lang] || competencyCatalog.eu;
+  // Map each assignment column to 1-2 competencies
+  const itemCompetencies = data.items.map((_, i) => [comps[i % comps.length], comps[(i + 2) % comps.length]]);
 
   const gradeColor = (g: number) =>
     g >= 90 ? "text-[color:var(--success)]" : g >= 75 ? "text-foreground" : g >= 65 ? "text-[color:var(--warning)]" : "text-destructive";
@@ -118,39 +123,65 @@ function GradebookPage() {
       <>
         <PageHeader title={t("page.gradebook.title")} subtitle={t("page.gradebook.subtitle")} />
 
-        {/* Subject selector */}
-        <div className="mb-6 relative">
-          <label className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-2 block">
-            {t("gradebook.subject")}
-          </label>
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-card border border-border text-sm font-medium hover:bg-secondary/40 transition-colors min-w-[200px]"
-          >
-            <span>{currentSubject?.label}</span>
-            <ChevronDown className={`w-4 h-4 ml-auto transition-transform ${isOpen ? "rotate-180" : ""}`} />
-          </button>
-          {isOpen && (
-            <>
-              <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-              <div className="absolute z-20 mt-1 w-full min-w-[200px] max-w-[280px] rounded-lg bg-card border border-border shadow-lg overflow-hidden">
-                {subjectList.map((s) => (
-                  <button
-                    key={s.key}
-                    onClick={() => {
-                      setSelectedSubject(s.key);
-                      setIsOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-2.5 text-sm hover:bg-secondary/60 transition-colors ${
-                      s.key === selectedSubject ? "bg-secondary/40 font-medium" : ""
-                    }`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
+        {/* Subject selector + view toggle */}
+        <div className="mb-4 flex flex-wrap items-end gap-4">
+          <div className="relative">
+            <label className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-2 block">
+              {t("gradebook.subject")}
+            </label>
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-card border border-border text-sm font-medium hover:bg-secondary/40 transition-colors min-w-[200px]"
+            >
+              <span>{currentSubject?.label}</span>
+              <ChevronDown className={`w-4 h-4 ml-auto transition-transform ${isOpen ? "rotate-180" : ""}`} />
+            </button>
+            {isOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
+                <div className="absolute z-20 mt-1 w-full min-w-[200px] max-w-[280px] rounded-lg bg-card border border-border shadow-lg overflow-hidden">
+                  {subjectList.map((s) => (
+                    <button
+                      key={s.key}
+                      onClick={() => {
+                        setSelectedSubject(s.key);
+                        setIsOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-secondary/60 transition-colors ${
+                        s.key === selectedSubject ? "bg-secondary/40 font-medium" : ""
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          <div>
+            <label className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-2 block">
+              {t("comp.level")}
+            </label>
+            <div className="inline-flex rounded-lg border border-border bg-card p-1">
+              {(["competency", "numeric"] as const).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setView(v)}
+                  className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                    view === v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {t(`comp.view.${v}`)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="ml-auto rounded-lg border border-border bg-card px-4 py-2.5">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5">{t("comp.level")}</div>
+            <CompetencyLegend />
+          </div>
         </div>
 
         <section className="rounded-xl bg-card border border-border overflow-x-auto" style={{ boxShadow: "var(--shadow-soft)" }}>
@@ -158,8 +189,13 @@ function GradebookPage() {
             <thead className="bg-secondary/60 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="text-left font-medium px-6 py-3">Ikaslea</th>
-                {data.items.map((i) => (
-                  <th key={i} className="text-center font-medium px-4 py-3">{i}</th>
+                {data.items.map((i, idx) => (
+                  <th key={i} className="text-center font-medium px-4 py-3 align-bottom">
+                    <div>{i}</div>
+                    <div className="mt-1 font-normal normal-case tracking-normal text-[10px] text-muted-foreground/80 max-w-[140px] mx-auto leading-tight">
+                      {itemCompetencies[idx].join(" · ")}
+                    </div>
+                  </th>
                 ))}
                 <th className="text-center font-medium px-6 py-3">{t("common.average")}</th>
               </tr>
@@ -171,9 +207,25 @@ function GradebookPage() {
                   <tr key={s.name} className="border-t border-border hover:bg-secondary/40">
                     <td className="px-6 py-3 font-medium">{s.name}</td>
                     {s.grades.map((g, i) => (
-                      <td key={i} className={`px-4 py-3 text-center tabular-nums font-medium ${gradeColor(g)}`}>{g}</td>
+                      <td key={i} className="px-4 py-3 text-center">
+                        {view === "numeric" ? (
+                          <span className={`tabular-nums font-medium ${gradeColor(g)}`}>{g}</span>
+                        ) : (
+                          <div className="flex justify-center">
+                            <CompetencyMeter level={gradeToLevel(g)} />
+                          </div>
+                        )}
+                      </td>
                     ))}
-                    <td className={`px-6 py-3 text-center tabular-nums font-semibold ${gradeColor(avg)}`}>{avg}</td>
+                    <td className="px-6 py-3 text-center">
+                      {view === "numeric" ? (
+                        <span className={`tabular-nums font-semibold ${gradeColor(avg)}`}>{avg}</span>
+                      ) : (
+                        <div className="flex justify-center">
+                          <CompetencyMeter level={gradeToLevel(avg)} showLabel />
+                        </div>
+                      )}
+                    </td>
                   </tr>
                 );
               })}
