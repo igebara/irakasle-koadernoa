@@ -74,6 +74,38 @@ export function CompetencyLegend() {
   );
 }
 
+// Horizontal 4-step bar used for an individual ebaluazio adierazlea
+export function IndicatorBar({ level, label, hint }: { level: CompetencyLevel; label?: string; hint?: string }) {
+  const { t } = useLanguage();
+  const meta = levelMeta[level];
+  return (
+    <div className="w-full" title={hint}>
+      {label && (
+        <div className="flex items-center justify-between mb-1 gap-2">
+          <span className="text-[11px] text-muted-foreground leading-tight">{label}</span>
+          <span
+            className="text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0"
+            style={{ color: meta.color, background: meta.bg }}
+          >
+            {t(`comp.level.${level}`)}
+          </span>
+        </div>
+      )}
+      <div className="flex gap-[3px] h-1.5 w-full">
+        {[1, 2, 3, 4].map((i) => (
+          <span
+            key={i}
+            className="flex-1 rounded-sm"
+            style={{
+              background: i <= level ? meta.color : "color-mix(in oklab, var(--muted-foreground) 15%, transparent)",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // Sample competencies used across the app
 export const competencyCatalog: Record<"eu" | "es" | "en", string[]> = {
   eu: [
