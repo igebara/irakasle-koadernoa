@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Plus, Trash2, RefreshCw } from "lucide-react";
 import { AppShell, PageHeader } from "@/components/AppShell";
 import { useLanguage } from "@/lib/i18n";
@@ -35,14 +35,44 @@ const subjects = {
   ],
 };
 
+// Label helpers: "Ikas-egoera" / "Situación de aprendizaje" / "Learning situation"
+function unitLabel(lang: "eu" | "es" | "en", plural = false) {
+  if (lang === "eu") return plural ? "Ikas-egoerak" : "Ikas-egoera";
+  if (lang === "es") return plural ? "Situaciones de aprendizaje" : "Situación de aprendizaje";
+  return plural ? "Learning situations" : "Learning situation";
+}
+
+function newUnitTitle(lang: "eu" | "es" | "en") {
+  if (lang === "eu") return "Ikas-egoera berria";
+  if (lang === "es") return "Nueva situación de aprendizaje";
+  return "New learning situation";
+}
+
+function emptyLabel(lang: "eu" | "es" | "en") {
+  if (lang === "eu") return "Oraindik ez dago ikas-egoera. Sortu lehenengoa.";
+  if (lang === "es") return "Aún no hay situaciones de aprendizaje. Crea la primera.";
+  return "No learning situations yet. Create the first one.";
+}
+
 function ProgramazioaPage() {
   const { t, lang } = useLanguage();
   const { data, updateSubject, reset } = useProgramazioa();
   const [selected, setSelected] = useState("algebra");
   const subjectList = subjects[lang] || subjects.eu;
-  const current = subjectList.find((s) => s.key === selected)!;
   const program = data[selected];
   const units = program?.units ?? [];
+  const listEndRef = useRef<HTMLDivElement>(null);
+  const prevCountRef = useRef(units.length);
+
+  // Auto-scroll when a new unit is added
+  useEffect(() => {
+    if (units.length > prevCountRef.current) {
+      setTimeout(() => {
+        listEndRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+    }
+    prevCountRef.current = units.length;
+  }, [units.length]);
 
   const updateUnit = (id: string, patch: Partial<Unit>) => {
     const next = units.map((u) => (u.id === id ? { ...u, ...patch } : u));
@@ -53,7 +83,7 @@ function ProgramazioaPage() {
     const id = `${selected}-u${Date.now()}`;
     updateSubject(selected, [
       ...units,
-      { id, title: lang === "es" ? "Nueva unidad" : lang === "en" ? "New unit" : "Unitate berria", competencies: [] },
+      { id, title: newUnitTitle(lang), competencies: [] },
     ]);
   };
 
@@ -90,27 +120,47 @@ function ProgramazioaPage() {
               <button onClick={reset} className="h-10 px-3 rounded-lg border border-border text-sm inline-flex items-center gap-2 hover:bg-secondary">
                 <RefreshCw className="h-4 w-4" /> {t("common.reset")}
               </button>
-              <button onClick={addUnit} className="h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 inline-flex items-center gap-2">
-                <Plus className="h-4 w-4" /> {t("programazioa.newUnit")}
+              <button
+                onClick={addUnit}
+                className="h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 inline-flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" /> {unitLabel(lang)} {lang === "eu" ? "berria" : lang === "es" ? "nueva" : "new"}
               </button>
             </div>
           }
         />
 
         <div className="flex flex-wrap items-end gap-3">
-          <SubjectPicker value={selected} onChange={setSelected} list={subjectList} label={t("gradebook.subject")} />
+          <SubjectPicker value={selected} onChange={(v) => { setSelected(v); }} list={subjectList} label={t("gradebook.subject")} />
           <div className="ml-auto text-[11px] text-muted-foreground italic max-w-md text-right">{curriculumSource[lang]}</div>
         </div>
 
+        {units.length > 0 && (
+          <p className="text-xs text-muted-foreground">
+            {units.length} {unitLabel(lang, true).toLowerCase()}
+          </p>
+        )}
+
         <div className="space-y-4">
-          {units.map((u) => (
-            <UnitCard key={u.id} unit={u} onTitle={(t) => updateUnit(u.id, { title: t })} onRemove={() => removeUnit(u.id)} onToggleComp={(id) => toggleComp(u, id)} onToggleInd={(c, i) => toggleIndicator(u, c, i)} />
+          {units.map((u, idx) => (
+            <UnitCard
+              key={u.id}
+              unit={u}
+              index={idx + 1}
+              lang={lang}
+              onTitle={(ti) => updateUnit(u.id, { title: ti })}
+              onRemove={() => removeUnit(u.id)}
+              onToggleComp={(id) => toggleComp(u, id)}
+              onToggleInd={(c, i) => toggleIndicator(u, c, i)}
+            />
           ))}
           {units.length === 0 && (
             <div className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-              {t("programazioa.empty")}
+              {emptyLabel(lang)}
             </div>
           )}
+          {/* Scroll target */}
+          <div ref={listEndRef} />
         </div>
       </>
     </AppShell>
@@ -143,19 +193,23 @@ function SubjectPicker({ value, onChange, list, label }: { value: string; onChan
   );
 }
 
-function UnitCard({ unit, onTitle, onRemove, onToggleComp, onToggleInd }: {
+function UnitCard({ unit, index, lang, onTitle, onRemove, onToggleComp, onToggleInd }: {
   unit: Unit;
+  index: number;
+  lang: "eu" | "es" | "en";
   onTitle: (t: string) => void;
   onRemove: () => void;
   onToggleComp: (compId: string) => void;
   onToggleInd: (compId: string, indId: string) => void;
 }) {
-  const { t, lang } = useLanguage();
   const selectedMap = useMemo(() => Object.fromEntries(unit.competencies.map((c) => [c.compId, c])), [unit]);
 
   return (
     <section className="rounded-xl bg-card border border-border p-5" style={{ boxShadow: "var(--shadow-soft)" }}>
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-3 mb-1">
+        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-secondary text-muted-foreground shrink-0">
+          {unitLabel(lang)} {index}
+        </span>
         <input
           value={unit.title}
           onChange={(e) => onTitle(e.target.value)}
@@ -166,7 +220,7 @@ function UnitCard({ unit, onTitle, onRemove, onToggleComp, onToggleInd }: {
         </button>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-3">
+      <div className="grid md:grid-cols-2 gap-3 mt-4">
         {mathCompetencies.map((c) => {
           const sel = selectedMap[c.id];
           const isOn = !!sel;
