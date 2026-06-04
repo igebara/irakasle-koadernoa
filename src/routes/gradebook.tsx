@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell, PageHeader } from "@/components/AppShell";
 import { useLanguage } from "@/lib/i18n";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { CompetencyMeter, CompetencyLegend, gradeToLevel, competencyCatalog } from "@/components/CompetencyMeter";
+import { CompetencyMeter, CompetencyLegend, gradeToLevel, IndicatorBar, type CompetencyLevel } from "@/components/CompetencyMeter";
+import { mathCompetencies } from "@/lib/curriculum";
 
 export const Route = createFileRoute("/gradebook")({
   head: () => ({ meta: [{ title: "Gradebook — Northgate" }] }),
@@ -106,24 +107,56 @@ function GradebookPage() {
   const { t, lang } = useLanguage();
   const [selectedSubject, setSelectedSubject] = useState("algebra");
   const [isOpen, setIsOpen] = useState(false);
-  const [view, setView] = useState<"numeric" | "competency">("competency");
+  const [selectedActivity, setSelectedActivity] = useState(0);
 
   const subjectList = subjects[lang] || subjects.eu;
   const currentSubject = subjectList.find((s) => s.key === selectedSubject);
   const data = gradeData[selectedSubject];
-  const comps = competencyCatalog[lang] || competencyCatalog.eu;
-  // Map each assignment column to 1-2 competencies
-  const itemCompetencies = data.items.map((_, i) => [comps[i % comps.length], comps[(i + 2) % comps.length]]);
 
-  const gradeColor = (g: number) =>
-    g >= 90 ? "text-[color:var(--success)]" : g >= 75 ? "text-foreground" : g >= 65 ? "text-[color:var(--warning)]" : "text-destructive";
+  // Map each activity to a deterministic set of competencies (2 per activity)
+  const itemCompetencies = useMemo(
+    () => data.items.map((_, i) => [mathCompetencies[i % mathCompetencies.length], mathCompetencies[(i + 2) % mathCompetencies.length]]),
+    [data.items],
+  );
+
+  // Derive per-student per-indicator level for the selected activity.
+  // Base level comes from the student's numeric grade, perturbed per indicator deterministically.
+  const levelFromGradeAndSeed = (grade: number, seed: number): CompetencyLevel => {
+    const base = gradeToLevel(grade);
+    const delta = ((seed * 7) % 3) - 1; // -1, 0, +1
+    const lv = Math.max(1, Math.min(4, base + delta));
+    return lv as CompetencyLevel;
+  };
+
+  // Aggregate per-student per-competency average level across ALL activities in the subject
+  const subjectSummary = useMemo(() => {
+    return data.students.map((s) => {
+      const perComp: Record<string, number[]> = {};
+      data.items.forEach((_, ai) => {
+        const comps = itemCompetencies[ai];
+        comps.forEach((c, ci) => {
+          c.indicators.forEach((ind, ii) => {
+            const lv = levelFromGradeAndSeed(s.grades[ai], ai * 13 + ci * 5 + ii);
+            (perComp[c.id] ||= []).push(lv);
+          });
+        });
+      });
+      const summary: Record<string, CompetencyLevel> = {};
+      Object.entries(perComp).forEach(([cid, arr]) => {
+        summary[cid] = Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) as CompetencyLevel;
+      });
+      return { student: s.name, summary };
+    });
+  }, [data, itemCompetencies]);
+
+  const activeComps = itemCompetencies[selectedActivity] ?? [];
 
   return (
     <AppShell>
       <>
         <PageHeader title={t("page.gradebook.title")} subtitle={t("page.gradebook.subtitle")} />
 
-        {/* Subject selector + view toggle */}
+        {/* Subject selector */}
         <div className="mb-4 flex flex-wrap items-end gap-4">
           <div className="relative">
             <label className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-2 block">
@@ -145,6 +178,7 @@ function GradebookPage() {
                       key={s.key}
                       onClick={() => {
                         setSelectedSubject(s.key);
+                        setSelectedActivity(0);
                         setIsOpen(false);
                       }}
                       className={`w-full text-left px-4 py-2.5 text-sm hover:bg-secondary/60 transition-colors ${
@@ -159,76 +193,116 @@ function GradebookPage() {
             )}
           </div>
 
-          <div>
-            <label className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-2 block">
-              {t("comp.level")}
-            </label>
-            <div className="inline-flex rounded-lg border border-border bg-card p-1">
-              {(["competency", "numeric"] as const).map((v) => (
-                <button
-                  key={v}
-                  onClick={() => setView(v)}
-                  className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
-                    view === v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {t(`comp.view.${v}`)}
-                </button>
-              ))}
-            </div>
-          </div>
-
           <div className="ml-auto rounded-lg border border-border bg-card px-4 py-2.5">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5">{t("comp.level")}</div>
             <CompetencyLegend />
           </div>
         </div>
 
-        <section className="rounded-xl bg-card border border-border overflow-x-auto" style={{ boxShadow: "var(--shadow-soft)" }}>
+        {/* Activity tabs */}
+        <div className="mb-4">
+          <div className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-2">{t("nav.assignments")}</div>
+          <div className="flex flex-wrap gap-1.5">
+            {data.items.map((item, i) => (
+              <button
+                key={item}
+                onClick={() => setSelectedActivity(i)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                  i === selectedActivity
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card border-border text-muted-foreground hover:text-foreground hover:bg-secondary/40"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Per-activity measurement matrix */}
+        <section className="rounded-xl bg-card border border-border overflow-x-auto mb-8" style={{ boxShadow: "var(--shadow-soft)" }}>
+          <div className="px-5 py-3 border-b border-border bg-secondary/30">
+            <h3 className="font-medium text-sm">{data.items[selectedActivity]}</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {activeComps.map((c) => `${c.code} ${c.label[lang]}`).join(" · ")}
+            </p>
+          </div>
           <table className="w-full text-sm">
-            <thead className="bg-secondary/60 text-xs uppercase tracking-wider text-muted-foreground">
+            <thead className="bg-secondary/40 text-[10px] uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="text-left font-medium px-6 py-3">Ikaslea</th>
-                {data.items.map((i, idx) => (
-                  <th key={i} className="text-center font-medium px-4 py-3 align-bottom">
-                    <div>{i}</div>
-                    <div className="mt-1 font-normal normal-case tracking-normal text-[10px] text-muted-foreground/80 max-w-[140px] mx-auto leading-tight">
-                      {itemCompetencies[idx].join(" · ")}
-                    </div>
-                  </th>
-                ))}
-                <th className="text-center font-medium px-6 py-3">{t("common.average")}</th>
+                <th className="text-left font-medium px-5 py-2.5 sticky left-0 bg-secondary/40">Ikaslea</th>
+                {activeComps.map((c) =>
+                  c.indicators.map((ind) => (
+                    <th key={ind.id} className="text-left font-medium px-3 py-2.5 min-w-[140px] align-bottom">
+                      <div className="font-mono text-[10px] text-foreground/60">{ind.code}</div>
+                      <div className="font-normal normal-case tracking-normal text-[10px] text-muted-foreground/80 leading-tight max-w-[160px]">
+                        {ind.label[lang]}
+                      </div>
+                    </th>
+                  )),
+                )}
               </tr>
             </thead>
             <tbody>
-              {data.students.map((s) => {
-                const avg = Math.round(s.grades.reduce((a, b) => a + b, 0) / s.grades.length);
-                return (
-                  <tr key={s.name} className="border-t border-border hover:bg-secondary/40">
-                    <td className="px-6 py-3 font-medium">{s.name}</td>
-                    {s.grades.map((g, i) => (
-                      <td key={i} className="px-4 py-3 text-center">
-                        {view === "numeric" ? (
-                          <span className={`tabular-nums font-medium ${gradeColor(g)}`}>{g}</span>
-                        ) : (
+              {data.students.map((s) => (
+                <tr key={s.name} className="border-t border-border hover:bg-secondary/40">
+                  <td className="px-5 py-2.5 font-medium sticky left-0 bg-card">{s.name}</td>
+                  {activeComps.map((c, ci) =>
+                    c.indicators.map((ind, ii) => {
+                      const lv = levelFromGradeAndSeed(s.grades[selectedActivity], selectedActivity * 13 + ci * 5 + ii);
+                      return (
+                        <td key={ind.id} className="px-3 py-2.5 min-w-[140px]">
+                          <IndicatorBar level={lv} />
+                        </td>
+                      );
+                    }),
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        {/* Subject-wide competency summary */}
+        <section className="rounded-xl bg-card border border-border overflow-x-auto" style={{ boxShadow: "var(--shadow-soft)" }}>
+          <div className="px-5 py-3 border-b border-border bg-secondary/30">
+            <h3 className="font-medium text-sm">{t("comp.summary")}</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">{currentSubject?.label}</p>
+          </div>
+          <table className="w-full text-sm">
+            <thead className="bg-secondary/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+              <tr>
+                <th className="text-left font-medium px-5 py-2.5">Ikaslea</th>
+                {mathCompetencies.map((c) => (
+                  <th key={c.id} className="text-center font-medium px-3 py-2.5 align-bottom">
+                    <div className="font-mono">{c.code}</div>
+                    <div className="font-normal normal-case text-[10px] text-muted-foreground/80 leading-tight max-w-[110px] mx-auto mt-0.5">
+                      {c.label[lang]}
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {subjectSummary.map((row) => (
+                <tr key={row.student} className="border-t border-border hover:bg-secondary/40">
+                  <td className="px-5 py-3 font-medium">{row.student}</td>
+                  {mathCompetencies.map((c) => {
+                    const lv = row.summary[c.id];
+                    return (
+                      <td key={c.id} className="px-3 py-3 text-center">
+                        {lv ? (
                           <div className="flex justify-center">
-                            <CompetencyMeter level={gradeToLevel(g)} />
+                            <CompetencyMeter level={lv} />
                           </div>
+                        ) : (
+                          <span className="text-muted-foreground/40">—</span>
                         )}
                       </td>
-                    ))}
-                    <td className="px-6 py-3 text-center">
-                      {view === "numeric" ? (
-                        <span className={`tabular-nums font-semibold ${gradeColor(avg)}`}>{avg}</span>
-                      ) : (
-                        <div className="flex justify-center">
-                          <CompetencyMeter level={gradeToLevel(avg)} showLabel />
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
+                    );
+                  })}
+                </tr>
+              ))}
             </tbody>
           </table>
         </section>
