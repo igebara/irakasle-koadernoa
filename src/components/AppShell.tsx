@@ -11,6 +11,7 @@ import {
   FileText,
   Users,
   CalendarDays,
+  CalendarRange,
   Video,
   Globe,
 } from "lucide-react";
@@ -23,6 +24,7 @@ const navItems = [
   { key: "nav.attendance", to: "/attendance", icon: ClipboardCheck },
   { key: "nav.gradebook", to: "/gradebook", icon: PenSquare },
   { key: "nav.assignments", to: "/assignments", icon: FileText },
+  { key: "nav.programazioa", to: "/programazioa", icon: CalendarRange },
   { key: "nav.students", to: "/students", icon: Users },
   { key: "nav.timetable", to: "/timetable", icon: CalendarDays },
   { key: "nav.messages", to: "/messages", icon: MessageSquare, badge: 4 },
