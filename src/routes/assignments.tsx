@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AppShell, PageHeader } from "@/components/AppShell";
-import { useLanguage, getLocalizedData } from "@/lib/i18n";
+import { useLanguage, getLocalizedData, type Lang } from "@/lib/i18n";
 import { Plus, SlidersHorizontal, User, ClipboardList, ChevronDown } from "lucide-react";
 import { CompetencyLegend, CompetencyMeter, IndicatorBar, type CompetencyLevel } from "@/components/CompetencyMeter";
 import { mathCompetencies } from "@/lib/curriculum";
@@ -257,14 +257,14 @@ function StudentView({
                     <div key={c.id} className="rounded-lg border border-border p-3">
                       <div className="flex items-center gap-2 mb-2.5">
                         <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-secondary text-foreground/70">{c.code}</span>
-                        <h4 className="font-medium text-sm">{c.label[lang]}</h4>
+                        <h4 className="font-medium text-sm">{c.label[lang as Lang]}</h4>
                       </div>
                       <div className="space-y-2.5">
                         {inds.map((ind) => (
                           <IndicatorBar
                             key={ind.id}
                             level={measurements[ind.id] as CompetencyLevel}
-                            label={`${ind.code} · ${ind.label[lang]}`}
+                            label={`${ind.code} · ${ind.label[lang as Lang]}`}
                           />
                         ))}
                       </div>
@@ -361,7 +361,7 @@ function TaskView({
             <section key={c.id} className="rounded-xl bg-card border border-border overflow-hidden" style={{ boxShadow: "var(--shadow-soft)" }}>
               <div className="px-5 py-3 border-b border-border bg-secondary/30 flex items-center gap-2">
                 <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-secondary text-foreground/70">{c.code}</span>
-                <h4 className="font-medium text-sm">{c.label[lang]}</h4>
+                <h4 className="font-medium text-sm">{c.label[lang as Lang]}</h4>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -377,7 +377,7 @@ function TaskView({
                           <th key={ind.id} className="text-left font-medium px-4 py-2.5 min-w-[180px] align-bottom normal-case tracking-normal">
                             <div className="font-mono text-[10px] text-foreground/60">{ind.code}</div>
                             <div className="text-[10px] text-muted-foreground/80 leading-tight max-w-[170px] font-normal">
-                              {ind.label[lang]}
+                              {ind.label[lang as Lang]}
                             </div>
                           </th>
                         );
