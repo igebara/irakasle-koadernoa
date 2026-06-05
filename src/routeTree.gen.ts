@@ -13,13 +13,13 @@ import { Route as TimetableRouteImport } from './routes/timetable'
 import { Route as StudentsRouteImport } from './routes/students'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProgramazioaRouteImport } from './routes/programazioa'
-import { Route as ProgramazioaProgramIdRouteImport } from './routes/programazioa.$programId'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as GradebookRouteImport } from './routes/gradebook'
 import { Route as ClassesRouteImport } from './routes/classes'
 import { Route as AttendanceRouteImport } from './routes/attendance'
 import { Route as AssignmentsRouteImport } from './routes/assignments'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProgramazioaProgramIdRouteImport } from './routes/programazioa.$programId'
 
 const TimetableRoute = TimetableRouteImport.update({
   id: '/timetable',
@@ -39,11 +39,6 @@ const SettingsRoute = SettingsRouteImport.update({
 const ProgramazioaRoute = ProgramazioaRouteImport.update({
   id: '/programazioa',
   path: '/programazioa',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProgramazioaProgramIdRoute = ProgramazioaProgramIdRouteImport.update({
-  id: '/programazioa/$programId',
-  path: '/programazioa/$programId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MessagesRoute = MessagesRouteImport.update({
@@ -76,6 +71,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProgramazioaProgramIdRoute = ProgramazioaProgramIdRouteImport.update({
+  id: '/$programId',
+  path: '/$programId',
+  getParentRoute: () => ProgramazioaRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -84,11 +84,11 @@ export interface FileRoutesByFullPath {
   '/classes': typeof ClassesRoute
   '/gradebook': typeof GradebookRoute
   '/messages': typeof MessagesRoute
-  '/programazioa': typeof ProgramazioaRoute
-  '/programazioa/$programId': typeof ProgramazioaProgramIdRoute
+  '/programazioa': typeof ProgramazioaRouteWithChildren
   '/settings': typeof SettingsRoute
   '/students': typeof StudentsRoute
   '/timetable': typeof TimetableRoute
+  '/programazioa/$programId': typeof ProgramazioaProgramIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -97,11 +97,11 @@ export interface FileRoutesByTo {
   '/classes': typeof ClassesRoute
   '/gradebook': typeof GradebookRoute
   '/messages': typeof MessagesRoute
-  '/programazioa': typeof ProgramazioaRoute
-  '/programazioa/$programId': typeof ProgramazioaProgramIdRoute
+  '/programazioa': typeof ProgramazioaRouteWithChildren
   '/settings': typeof SettingsRoute
   '/students': typeof StudentsRoute
   '/timetable': typeof TimetableRoute
+  '/programazioa/$programId': typeof ProgramazioaProgramIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -111,11 +111,11 @@ export interface FileRoutesById {
   '/classes': typeof ClassesRoute
   '/gradebook': typeof GradebookRoute
   '/messages': typeof MessagesRoute
-  '/programazioa': typeof ProgramazioaRoute
-  '/programazioa/$programId': typeof ProgramazioaProgramIdRoute
+  '/programazioa': typeof ProgramazioaRouteWithChildren
   '/settings': typeof SettingsRoute
   '/students': typeof StudentsRoute
   '/timetable': typeof TimetableRoute
+  '/programazioa/$programId': typeof ProgramazioaProgramIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -127,10 +127,10 @@ export interface FileRouteTypes {
     | '/gradebook'
     | '/messages'
     | '/programazioa'
-    | '/programazioa/$programId'
     | '/settings'
     | '/students'
     | '/timetable'
+    | '/programazioa/$programId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -140,10 +140,10 @@ export interface FileRouteTypes {
     | '/gradebook'
     | '/messages'
     | '/programazioa'
-    | '/programazioa/$programId'
     | '/settings'
     | '/students'
     | '/timetable'
+    | '/programazioa/$programId'
   id:
     | '__root__'
     | '/'
@@ -153,10 +153,10 @@ export interface FileRouteTypes {
     | '/gradebook'
     | '/messages'
     | '/programazioa'
-    | '/programazioa/$programId'
     | '/settings'
     | '/students'
     | '/timetable'
+    | '/programazioa/$programId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -166,8 +166,7 @@ export interface RootRouteChildren {
   ClassesRoute: typeof ClassesRoute
   GradebookRoute: typeof GradebookRoute
   MessagesRoute: typeof MessagesRoute
-  ProgramazioaRoute: typeof ProgramazioaRoute
-  ProgramazioaProgramIdRoute: typeof ProgramazioaProgramIdRoute
+  ProgramazioaRoute: typeof ProgramazioaRouteWithChildren
   SettingsRoute: typeof SettingsRoute
   StudentsRoute: typeof StudentsRoute
   TimetableRoute: typeof TimetableRoute
@@ -201,13 +200,6 @@ declare module '@tanstack/react-router' {
       path: '/programazioa'
       fullPath: '/programazioa'
       preLoaderRoute: typeof ProgramazioaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/programazioa/$programId': {
-      id: '/programazioa/$programId'
-      path: '/programazioa/$programId'
-      fullPath: '/programazioa/$programId'
-      preLoaderRoute: typeof ProgramazioaProgramIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/messages': {
@@ -252,8 +244,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/programazioa/$programId': {
+      id: '/programazioa/$programId'
+      path: '/$programId'
+      fullPath: '/programazioa/$programId'
+      preLoaderRoute: typeof ProgramazioaProgramIdRouteImport
+      parentRoute: typeof ProgramazioaRoute
+    }
   }
 }
+
+interface ProgramazioaRouteChildren {
+  ProgramazioaProgramIdRoute: typeof ProgramazioaProgramIdRoute
+}
+
+const ProgramazioaRouteChildren: ProgramazioaRouteChildren = {
+  ProgramazioaProgramIdRoute: ProgramazioaProgramIdRoute,
+}
+
+const ProgramazioaRouteWithChildren = ProgramazioaRoute._addFileChildren(
+  ProgramazioaRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -262,8 +273,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClassesRoute: ClassesRoute,
   GradebookRoute: GradebookRoute,
   MessagesRoute: MessagesRoute,
-  ProgramazioaRoute: ProgramazioaRoute,
-  ProgramazioaProgramIdRoute: ProgramazioaProgramIdRoute,
+  ProgramazioaRoute: ProgramazioaRouteWithChildren,
   SettingsRoute: SettingsRoute,
   StudentsRoute: StudentsRoute,
   TimetableRoute: TimetableRoute,
@@ -271,13 +281,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
