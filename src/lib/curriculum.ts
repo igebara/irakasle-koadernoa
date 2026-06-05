@@ -14,7 +14,12 @@ export type Competency = {
   label: Localized;
   description: Localized;
   indicators: Indicator[];
+  oinarrizkoJakintzak?: Indicator[];
 };
+
+const J = (id: string, code: string, eu: string, es: string, en: string): Indicator => ({
+  id, code, label: { eu, es, en },
+});
 
 // Representative slice of the official Basque curriculum (matematika)
 // Source: Heziberri / 236/2015 Dekretua eta DBH-ko curriculum eguneratua.
@@ -37,6 +42,11 @@ export const mathCompetencies: Competency[] = [
       { id: "km1.ae2", code: "AE1.2", label: { eu: "Estrategia egokia hautatu eta aplikatu", es: "Elige y aplica una estrategia adecuada", en: "Chooses and applies a suitable strategy" } },
       { id: "km1.ae3", code: "AE1.3", label: { eu: "Emaitza testuinguruan baloratu", es: "Valida el resultado en su contexto", en: "Validates the result in context" } },
     ],
+    oinarrizkoJakintzak: [
+      J("km1.j1", "OJ1.1", "Zenbaki errealak eta eragiketak", "Números reales y operaciones", "Real numbers and operations"),
+      J("km1.j2", "OJ1.2", "Ekuazio eta inekuazio sinpleak", "Ecuaciones e inecuaciones simples", "Simple equations and inequalities"),
+      J("km1.j3", "OJ1.3", "Heuristikoak eta problema-eredu motak", "Heurísticas y tipos de problemas", "Heuristics and problem types"),
+    ],
   },
   {
     id: "km2",
@@ -55,6 +65,10 @@ export const mathCompetencies: Competency[] = [
       { id: "km2.ae1", code: "AE2.1", label: { eu: "Patroiak identifikatu eta konjeturak proposatu", es: "Identifica patrones y propone conjeturas", en: "Identifies patterns and proposes conjectures" } },
       { id: "km2.ae2", code: "AE2.2", label: { eu: "Argudiaketa logikoa erabili", es: "Usa argumentación lógica", en: "Uses logical argumentation" } },
     ],
+    oinarrizkoJakintzak: [
+      J("km2.j1", "OJ2.1", "Logika eta dedukzioa", "Lógica y deducción", "Logic and deduction"),
+      J("km2.j2", "OJ2.2", "Indukzio matematikoa", "Inducción matemática", "Mathematical induction"),
+    ],
   },
   {
     id: "km3",
@@ -68,6 +82,10 @@ export const mathCompetencies: Competency[] = [
     indicators: [
       { id: "km3.ae1", code: "AE3.1", label: { eu: "Eguneroko bizitzako egoerekin lotu", es: "Relaciona con situaciones cotidianas", en: "Relates to everyday situations" } },
       { id: "km3.ae2", code: "AE3.2", label: { eu: "Beste diziplinekiko loturak ezarri", es: "Establece vínculos con otras disciplinas", en: "Links with other disciplines" } },
+    ],
+    oinarrizkoJakintzak: [
+      J("km3.j1", "OJ3.1", "Modelizazio matematikoa", "Modelización matemática", "Mathematical modelling"),
+      J("km3.j2", "OJ3.2", "STEAM diziplinarteko proiektuak", "Proyectos STEAM interdisciplinares", "STEAM interdisciplinary projects"),
     ],
   },
   {
@@ -88,6 +106,10 @@ export const mathCompetencies: Competency[] = [
       { id: "km4.ae2", code: "AE4.2", label: { eu: "Errepresentazio grafiko/sinbolikoak interpretatu", es: "Interpreta representaciones gráficas y simbólicas", en: "Interprets graphic and symbolic representations" } },
       { id: "km4.ae3", code: "AE4.3", label: { eu: "Prozesua eta emaitzak komunikatu", es: "Comunica el proceso y los resultados", en: "Communicates process and results" } },
     ],
+    oinarrizkoJakintzak: [
+      J("km4.j1", "OJ4.1", "Hizkuntza matematikoaren sintaxia", "Sintaxis del lenguaje matemático", "Mathematical language syntax"),
+      J("km4.j2", "OJ4.2", "Grafikoak eta diagramak", "Gráficos y diagramas", "Graphs and diagrams"),
+    ],
   },
   {
     id: "km5",
@@ -106,6 +128,10 @@ export const mathCompetencies: Competency[] = [
       { id: "km5.ae1", code: "AE5.1", label: { eu: "Software egokia hautatu", es: "Elige el software adecuado", en: "Chooses appropriate software" } },
       { id: "km5.ae2", code: "AE5.2", label: { eu: "Emaitzak modu kritikoan interpretatu", es: "Interpreta resultados de forma crítica", en: "Interprets results critically" } },
     ],
+    oinarrizkoJakintzak: [
+      J("km5.j1", "OJ5.1", "Kalkulu sinbolikoa (GeoGebra, etab.)", "Cálculo simbólico (GeoGebra, etc.)", "Symbolic computation (GeoGebra, etc.)"),
+      J("km5.j2", "OJ5.2", "Datu-analisia kalkulu-orriekin", "Análisis de datos con hojas de cálculo", "Spreadsheet data analysis"),
+    ],
   },
   {
     id: "km6",
@@ -123,6 +149,10 @@ export const mathCompetencies: Competency[] = [
     indicators: [
       { id: "km6.ae1", code: "AE6.1", label: { eu: "Taldean modu eraikitzailean parte hartu", es: "Participa constructivamente en el grupo", en: "Participates constructively in the group" } },
       { id: "km6.ae2", code: "AE6.2", label: { eu: "Errorea ikaskuntza-aukera gisa onartu", es: "Asume el error como oportunidad de aprendizaje", en: "Embraces error as a learning opportunity" } },
+    ],
+    oinarrizkoJakintzak: [
+      J("km6.j1", "OJ6.1", "Talde-lana eta rolak", "Trabajo en equipo y roles", "Teamwork and roles"),
+      J("km6.j2", "OJ6.2", "Autorregulazioa eta meta-kognizioa", "Autorregulación y metacognición", "Self-regulation and metacognition"),
     ],
   },
 ];
