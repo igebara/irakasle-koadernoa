@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TimetableRouteImport } from './routes/timetable'
 import { Route as StudentsRouteImport } from './routes/students'
 import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as ProgramazioaRouteImport } from './routes/programazioa'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as GradebookRouteImport } from './routes/gradebook'
 import { Route as ClassesRouteImport } from './routes/classes'
@@ -33,11 +32,6 @@ const StudentsRoute = StudentsRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProgramazioaRoute = ProgramazioaRouteImport.update({
-  id: '/programazioa',
-  path: '/programazioa',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MessagesRoute = MessagesRouteImport.update({
@@ -78,7 +72,6 @@ export interface FileRoutesByFullPath {
   '/classes': typeof ClassesRoute
   '/gradebook': typeof GradebookRoute
   '/messages': typeof MessagesRoute
-  '/programazioa': typeof ProgramazioaRoute
   '/settings': typeof SettingsRoute
   '/students': typeof StudentsRoute
   '/timetable': typeof TimetableRoute
@@ -90,7 +83,6 @@ export interface FileRoutesByTo {
   '/classes': typeof ClassesRoute
   '/gradebook': typeof GradebookRoute
   '/messages': typeof MessagesRoute
-  '/programazioa': typeof ProgramazioaRoute
   '/settings': typeof SettingsRoute
   '/students': typeof StudentsRoute
   '/timetable': typeof TimetableRoute
@@ -103,7 +95,6 @@ export interface FileRoutesById {
   '/classes': typeof ClassesRoute
   '/gradebook': typeof GradebookRoute
   '/messages': typeof MessagesRoute
-  '/programazioa': typeof ProgramazioaRoute
   '/settings': typeof SettingsRoute
   '/students': typeof StudentsRoute
   '/timetable': typeof TimetableRoute
@@ -117,7 +108,6 @@ export interface FileRouteTypes {
     | '/classes'
     | '/gradebook'
     | '/messages'
-    | '/programazioa'
     | '/settings'
     | '/students'
     | '/timetable'
@@ -129,7 +119,6 @@ export interface FileRouteTypes {
     | '/classes'
     | '/gradebook'
     | '/messages'
-    | '/programazioa'
     | '/settings'
     | '/students'
     | '/timetable'
@@ -141,7 +130,6 @@ export interface FileRouteTypes {
     | '/classes'
     | '/gradebook'
     | '/messages'
-    | '/programazioa'
     | '/settings'
     | '/students'
     | '/timetable'
@@ -154,7 +142,6 @@ export interface RootRouteChildren {
   ClassesRoute: typeof ClassesRoute
   GradebookRoute: typeof GradebookRoute
   MessagesRoute: typeof MessagesRoute
-  ProgramazioaRoute: typeof ProgramazioaRoute
   SettingsRoute: typeof SettingsRoute
   StudentsRoute: typeof StudentsRoute
   TimetableRoute: typeof TimetableRoute
@@ -181,13 +168,6 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/programazioa': {
-      id: '/programazioa'
-      path: '/programazioa'
-      fullPath: '/programazioa'
-      preLoaderRoute: typeof ProgramazioaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/messages': {
@@ -242,7 +222,6 @@ const rootRouteChildren: RootRouteChildren = {
   ClassesRoute: ClassesRoute,
   GradebookRoute: GradebookRoute,
   MessagesRoute: MessagesRoute,
-  ProgramazioaRoute: ProgramazioaRoute,
   SettingsRoute: SettingsRoute,
   StudentsRoute: StudentsRoute,
   TimetableRoute: TimetableRoute,
@@ -250,3 +229,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
