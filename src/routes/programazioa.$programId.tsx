@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowLeft, Plus, Trash2, FileText, Link as LinkIcon } from "lucide-react";
+import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { AppShell, PageHeader } from "@/components/AppShell";
 import { useLanguage, type Lang } from "@/lib/i18n";
 import { mathCompetencies } from "@/lib/curriculum";
