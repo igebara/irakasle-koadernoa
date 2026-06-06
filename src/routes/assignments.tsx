@@ -2,10 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AppShell, PageHeader } from "@/components/AppShell";
 import { useLanguage, getLocalizedData, type Lang } from "@/lib/i18n";
-import { Plus, SlidersHorizontal, User, ClipboardList, ChevronDown } from "lucide-react";
+import { Plus, SlidersHorizontal, User, ClipboardList, ChevronDown, LayoutGrid, Pencil, X } from "lucide-react";
 import { CompetencyLegend, CompetencyMeter, IndicatorBar, type CompetencyLevel } from "@/components/CompetencyMeter";
 import { mathCompetencies } from "@/lib/curriculum";
-import { useMeasurements } from "@/lib/programazioa";
+import { useMeasurements, useProgramazioak } from "@/lib/programazioa";
 import { MeasurementEditor } from "@/components/MeasurementEditor";
 
 export const Route = createFileRoute("/assignments")({
@@ -25,7 +25,7 @@ const allStudents = [
   { name: "Kenji Tanaka", grade: "12A" },
 ];
 
-type ViewMode = "student" | "task";
+type ViewMode = "student" | "task" | "overview";
 
 function AssignmentsPage() {
   const { lang, t } = useLanguage();
@@ -33,6 +33,25 @@ function AssignmentsPage() {
   const { data: allMeas, setForActivity } = useMeasurements();
   const [viewMode, setViewMode] = useState<ViewMode>("student");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const { list: programs } = useProgramazioak();
+
+  // Custom tasks created via "New measurement"
+  const [customTasks, setCustomTasks] = useState<{ title: string; class: string; compIds: string[]; indicatorIds: string[] }[]>([]);
+  const allAssignments = useMemo(() => {
+    const custom = customTasks.map((c, i) => ({
+      title: c.title,
+      class: c.class,
+      dueKey: null as any,
+      dueLabel: "—",
+      submitted: 0,
+      total: 0,
+      __custom: true,
+      __idx: i,
+    }));
+    return [...custom, ...assignments];
+  }, [customTasks, assignments]);
 
   // Student view state
   const [selectedStudent, setSelectedStudent] = useState(allStudents[0]);
@@ -45,8 +64,15 @@ function AssignmentsPage() {
   // Seed deterministic measurements per activity
   const defaults = useMemo(() => {
     const seed: Record<string, Record<string, number>> = {};
-    assignments.forEach((a, i) => {
+    allAssignments.forEach((a: any, i) => {
       const id = `act-${i}`;
+      if (a.__custom) {
+        const m: Record<string, number> = {};
+        const tk = customTasks[a.__idx];
+        tk.indicatorIds.forEach((indId, ii) => { m[indId] = ((ii % 4) + 1); });
+        seed[id] = m;
+        return;
+      }
       const picked = [mathCompetencies[i % mathCompetencies.length], mathCompetencies[(i + 2) % mathCompetencies.length]];
       const m: Record<string, number> = {};
       picked.forEach((c, ci) => {
@@ -57,7 +83,7 @@ function AssignmentsPage() {
       seed[id] = m;
     });
     return seed;
-  }, [assignments]);
+  }, [allAssignments, customTasks]);
 
   // Per-student measurements: slightly perturb default per student index
   const studentMeasurements = (actId: string, studentIdx: number): Record<string, number> => {
@@ -79,8 +105,11 @@ function AssignmentsPage() {
           title={t("page.assignments.title")}
           subtitle={t("page.assignments.subtitle")}
           action={
-            <button className="h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 inline-flex items-center gap-2">
-              <Plus className="h-4 w-4" /> {t("hero.newAssignment")}
+            <button
+              onClick={() => setPickerOpen(true)}
+              className="h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 inline-flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" /> {t("assign.newMeasurement")}
             </button>
           }
         />
@@ -102,7 +131,21 @@ function AssignmentsPage() {
               <ClipboardList className="h-4 w-4" />
               {lang === "eu" ? "Ataza ikuspegi" : lang === "es" ? "Por tarea" : "By task"}
             </button>
+            <button
+              onClick={() => setViewMode("overview")}
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors ${viewMode === "overview" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary/60"}`}
+            >
+              <LayoutGrid className="h-4 w-4" />
+              {t("assign.overview")}
+            </button>
           </div>
+
+          <button
+            onClick={() => setEditMode((e) => !e)}
+            className={`inline-flex items-center gap-2 h-10 px-3 rounded-lg border text-sm font-medium transition-colors ${editMode ? "bg-accent text-accent-foreground border-accent" : "bg-card border-border text-muted-foreground hover:bg-secondary/60"}`}
+          >
+            <Pencil className="h-4 w-4" /> {t("assign.editMode")}
+          </button>
 
           <div className="ml-auto rounded-lg border border-border bg-card px-4 py-2">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">{t("comp.level")}</div>
@@ -113,7 +156,7 @@ function AssignmentsPage() {
         {/* ── STUDENT VIEW ── */}
         {viewMode === "student" && (
           <StudentView
-            assignments={assignments}
+            assignments={allAssignments}
             allStudents={allStudents}
             selectedStudent={selectedStudent}
             setSelectedStudent={setSelectedStudent}
@@ -126,6 +169,7 @@ function AssignmentsPage() {
             editingId={editingId}
             setEditingId={setEditingId}
             setForActivity={setForActivity}
+            editMode={editMode}
             lang={lang}
             t={t}
           />
@@ -134,7 +178,7 @@ function AssignmentsPage() {
         {/* ── TASK VIEW ── */}
         {viewMode === "task" && (
           <TaskView
-            assignments={assignments}
+            assignments={allAssignments}
             allStudents={allStudents}
             selectedTaskIdx={selectedTaskIdx}
             setSelectedTaskIdx={setSelectedTaskIdx}
@@ -146,18 +190,39 @@ function AssignmentsPage() {
             editingId={editingId}
             setEditingId={setEditingId}
             setForActivity={setForActivity}
+            editMode={editMode}
             lang={lang}
             t={t}
           />
+        )}
+
+        {/* ── OVERVIEW ── */}
+        {viewMode === "overview" && (
+          <OverviewPanel allAssignments={allAssignments} allStudents={allStudents} studentMeasurements={studentMeasurements} lang={lang} />
         )}
 
         {editingId && (
           <MeasurementEditor
             open
             onClose={() => setEditingId(null)}
-            activityTitle={assignments[parseInt(editingId.split("-")[1], 10)]?.title ?? ""}
+            activityTitle={allAssignments[parseInt(editingId.split("-")[1], 10)]?.title ?? ""}
             initial={allMeas[editingId] ?? defaults[editingId] ?? {}}
             onSave={(m) => setForActivity(editingId, m)}
+          />
+        )}
+
+        {pickerOpen && (
+          <NewMeasurementPicker
+            programs={programs}
+            lang={lang}
+            t={t}
+            onClose={() => setPickerOpen(false)}
+            onPick={(payload) => {
+              setCustomTasks((prev) => [payload, ...prev]);
+              setPickerOpen(false);
+              setViewMode("task");
+              setSelectedTaskIdx(0);
+            }}
           />
         )}
       </>
@@ -172,7 +237,7 @@ function StudentView({
   assignments, allStudents, selectedStudent, setSelectedStudent,
   studentDropOpen, setStudentDropOpen, selectedStudentIdx,
   studentMeasurements, allMeas, defaults,
-  editingId, setEditingId, setForActivity, lang, t,
+  editingId, setEditingId, setForActivity, editMode, lang, t,
 }: any) {
   return (
     <div className="space-y-4">
@@ -265,6 +330,12 @@ function StudentView({
                             key={ind.id}
                             level={measurements[ind.id] as CompetencyLevel}
                             label={`${ind.code} · ${ind.label[lang as Lang]}`}
+                            editable={editMode}
+                            onChange={(lv) => {
+                              const actId = `act-${assignments.findIndex((x: any) => x.title === a.title)}`;
+                              const base = allMeas[actId] ?? defaults[actId] ?? {};
+                              setForActivity(actId, { ...base, [ind.id]: lv });
+                            }}
                           />
                         ))}
                       </div>
@@ -292,7 +363,7 @@ function TaskView({
   assignments, allStudents, selectedTaskIdx, setSelectedTaskIdx,
   taskDropOpen, setTaskDropOpen,
   studentMeasurements, allMeas, defaults,
-  editingId, setEditingId, setForActivity, lang, t,
+  editingId, setEditingId, setForActivity, editMode, lang, t,
 }: any) {
   const assignment = assignments[selectedTaskIdx];
   const actId = `act-${selectedTaskIdx}`;
@@ -416,7 +487,19 @@ function TaskView({
                             const lv = meas[ind.id] as CompetencyLevel;
                             return (
                               <td key={ind.id} className="px-4 py-3 min-w-[180px]">
-                                {lv ? <IndicatorBar level={lv} /> : <span className="text-muted-foreground/40 text-xs">—</span>}
+                                {lv ? (
+                                  <IndicatorBar
+                                    level={lv}
+                                    editable={editMode}
+                                    onChange={(nlv) => {
+                                      // Per-student editing isn't persisted in v1; mutate task baseline instead
+                                      const next = { ...base, [ind.id]: nlv };
+                                      setForActivity(actId, next);
+                                    }}
+                                  />
+                                ) : (
+                                  <span className="text-muted-foreground/40 text-xs">—</span>
+                                )}
                               </td>
                             );
                           })}
@@ -437,6 +520,148 @@ function TaskView({
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// OVERVIEW PANEL (subject-wide gradebook-style summary)
+// ─────────────────────────────────────────
+function OverviewPanel({ allAssignments, allStudents, studentMeasurements, lang }: any) {
+  // Aggregate per-student per-competency across all assignments
+  const rows = allStudents.map((s: any, si: number) => {
+    const perComp: Record<string, number[]> = {};
+    allAssignments.forEach((_: any, ai: number) => {
+      const actId = `act-${ai}`;
+      const meas = studentMeasurements(actId, si);
+      mathCompetencies.forEach((c) => {
+        c.indicators.forEach((ind) => {
+          if (meas[ind.id]) (perComp[c.id] ||= []).push(meas[ind.id]);
+        });
+      });
+    });
+    const summary: Record<string, CompetencyLevel> = {};
+    Object.entries(perComp).forEach(([cid, arr]) => {
+      summary[cid] = Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) as CompetencyLevel;
+    });
+    return { student: s, summary };
+  });
+
+  return (
+    <section className="rounded-xl bg-card border border-border overflow-x-auto" style={{ boxShadow: "var(--shadow-soft)" }}>
+      <div className="px-5 py-3 border-b border-border bg-secondary/30">
+        <h3 className="font-medium text-sm">{lang === "eu" ? "Konpetentzien laburpena" : lang === "es" ? "Resumen de competencias" : "Competency summary"}</h3>
+        <p className="text-xs text-muted-foreground mt-0.5">{lang === "eu" ? "Neurketa guztien batez bestekoa" : lang === "es" ? "Media de todas las mediciones" : "Average across all measurements"}</p>
+      </div>
+      <table className="w-full text-sm">
+        <thead className="bg-secondary/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+          <tr>
+            <th className="text-left font-medium px-5 py-2.5">{lang === "eu" ? "Ikaslea" : lang === "es" ? "Alumno/a" : "Student"}</th>
+            {mathCompetencies.map((c) => (
+              <th key={c.id} className="text-center font-medium px-3 py-2.5 align-bottom">
+                <div className="font-mono">{c.code}</div>
+                <div className="font-normal normal-case text-[10px] text-muted-foreground/80 leading-tight max-w-[110px] mx-auto mt-0.5">
+                  {c.label[lang as Lang]}
+                </div>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row: any) => (
+            <tr key={row.student.name} className="border-t border-border hover:bg-secondary/40">
+              <td className="px-5 py-3 font-medium text-xs">{row.student.name}</td>
+              {mathCompetencies.map((c) => {
+                const lv = row.summary[c.id];
+                return (
+                  <td key={c.id} className="px-3 py-3 text-center">
+                    {lv ? (
+                      <div className="flex justify-center"><CompetencyMeter level={lv} /></div>
+                    ) : (
+                      <span className="text-muted-foreground/40">—</span>
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────
+// NEW MEASUREMENT PICKER — choose ataza konpetentziala from a programazio
+// ─────────────────────────────────────────
+function NewMeasurementPicker({
+  programs,
+  lang,
+  t,
+  onClose,
+  onPick,
+}: {
+  programs: any[];
+  lang: Lang;
+  t: (k: string) => string;
+  onClose: () => void;
+  onPick: (payload: { title: string; class: string; compIds: string[]; indicatorIds: string[] }) => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="w-full max-w-2xl max-h-[85vh] overflow-hidden rounded-2xl bg-card border border-border flex flex-col" style={{ boxShadow: "var(--shadow-elegant, 0 20px 60px -20px rgba(0,0,0,0.4))" }}>
+        <div className="px-6 py-4 border-b border-border flex items-start justify-between gap-3">
+          <div>
+            <h2 className="font-display text-lg font-semibold">{t("assign.newMeasurement")}</h2>
+            <p className="text-sm text-muted-foreground mt-0.5">{t("assign.pickTask")}</p>
+          </div>
+          <button onClick={onClose} className="h-8 w-8 grid place-items-center rounded-lg hover:bg-secondary">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+          {programs.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              {lang === "eu" ? "Ez dago programaziorik. Joan Programazioa atalera." : lang === "es" ? "No hay programaciones. Ve a Programación." : "No programs yet. Go to Programazioa."}
+            </p>
+          )}
+          {programs.map((p) => (
+            <section key={p.id} className="rounded-xl border border-border">
+              <header className="px-4 py-2.5 border-b border-border bg-secondary/30">
+                <p className="font-medium text-sm">{p.name}</p>
+                <p className="text-[11px] text-muted-foreground">{p.subjectKey}</p>
+              </header>
+              <div className="divide-y divide-border">
+                {p.ikasEgoerak.flatMap((ie: any) =>
+                  ie.atazak.map((at: any) => (
+                    <button
+                      key={at.id}
+                      type="button"
+                      onClick={() =>
+                        onPick({
+                          title: at.title[lang] || at.title.eu,
+                          class: p.name,
+                          compIds: at.competencies.map((c: any) => c.compId),
+                          indicatorIds: at.competencies.flatMap((c: any) => c.indicatorIds),
+                        })
+                      }
+                      className="w-full text-left px-4 py-3 hover:bg-secondary/40 transition-colors"
+                    >
+                      <p className="text-sm font-medium">{at.title[lang] || at.title.eu}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                        {ie.title[lang] || ie.title.eu} · {at.competencies.length} {t("comp.title").toLowerCase()}
+                      </p>
+                    </button>
+                  )),
+                )}
+                {p.ikasEgoerak.length === 0 && (
+                  <p className="px-4 py-3 text-xs text-muted-foreground">—</p>
+                )}
+              </div>
+            </section>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

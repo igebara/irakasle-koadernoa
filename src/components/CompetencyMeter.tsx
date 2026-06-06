@@ -75,7 +75,19 @@ export function CompetencyLegend() {
 }
 
 // Horizontal 4-step bar used for an individual ebaluazio adierazlea
-export function IndicatorBar({ level, label, hint }: { level: CompetencyLevel; label?: string; hint?: string }) {
+export function IndicatorBar({
+  level,
+  label,
+  hint,
+  editable = false,
+  onChange,
+}: {
+  level: CompetencyLevel;
+  label?: string;
+  hint?: string;
+  editable?: boolean;
+  onChange?: (lv: CompetencyLevel) => void;
+}) {
   const { t } = useLanguage();
   const meta = levelMeta[level];
   return (
@@ -93,13 +105,27 @@ export function IndicatorBar({ level, label, hint }: { level: CompetencyLevel; l
       )}
       <div className="flex gap-[3px] h-1.5 w-full">
         {[1, 2, 3, 4].map((i) => (
-          <span
-            key={i}
-            className="flex-1 rounded-sm"
-            style={{
-              background: i <= level ? meta.color : "color-mix(in oklab, var(--muted-foreground) 15%, transparent)",
-            }}
-          />
+          editable ? (
+            <button
+              key={i}
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onChange?.(i as CompetencyLevel); }}
+              className="flex-1 rounded-sm hover:opacity-80 transition-opacity cursor-pointer"
+              style={{
+                background: i <= level ? meta.color : "color-mix(in oklab, var(--muted-foreground) 15%, transparent)",
+                minHeight: 8,
+              }}
+              aria-label={`level ${i}`}
+            />
+          ) : (
+            <span
+              key={i}
+              className="flex-1 rounded-sm"
+              style={{
+                background: i <= level ? meta.color : "color-mix(in oklab, var(--muted-foreground) 15%, transparent)",
+              }}
+            />
+          )
         ))}
       </div>
     </div>

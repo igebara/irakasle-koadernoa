@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell, PageHeader } from "@/components/AppShell";
 import { useLanguage, getLocalizedData } from "@/lib/i18n";
 import { useState } from "react";
-import { Check, X, Clock, ChevronDown } from "lucide-react";
+import { Check, X, Clock, ChevronDown, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/attendance")({
   head: () => ({ meta: [{ title: "Attendance — Northgate" }] }),
@@ -19,16 +19,37 @@ const rosterByClass: Record<string, string[]> = {
 
 type Status = "present" | "absent" | "late";
 
-const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-const todayIdx = 3; // Thursday
+function formatDate(d: Date, lang: string) {
+  const locale = lang === "eu" ? "eu-ES" : lang === "es" ? "es-ES" : "en-GB";
+  return d.toLocaleDateString(locale, { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
+}
+function isoDate(d: Date) {
+  return d.toISOString().slice(0, 10);
+}
 
 function AttendancePage() {
   const { lang, t } = useLanguage();
   const { schedule } = getLocalizedData(lang);
 
   const [selectedClassIdx, setSelectedClassIdx] = useState(2); // default: Calculus 12A
-  const [selectedDay, setSelectedDay] = useState(todayIdx);
+  const today = new Date();
+  const [selectedDate, setSelectedDate] = useState<string>(isoDate(today));
   const [classOpen, setClassOpen] = useState(false);
+  // Sessions per (class, date): each session has an id + time
+  const [sessionsMap, setSessionsMap] = useState<Record<string, { id: string; time: string }[]>>({});
+  const sessionKey = `${selectedClassIdx}-${selectedDate}`;
+  const defaultSessions = [{ id: "s1", time: schedule[selectedClassIdx]?.time ?? "08:00" }];
+  const sessions = sessionsMap[sessionKey] ?? defaultSessions;
+  const [selectedSessionId, setSelectedSessionId] = useState<string>(sessions[0].id);
+  const activeSessionId = sessions.find((s) => s.id === selectedSessionId)?.id ?? sessions[0].id;
+
+  const addSession = () => {
+    const next = [...sessions];
+    const n = next.length + 1;
+    next.push({ id: `s${Date.now()}`, time: `${(8 + n).toString().padStart(2, "0")}:00` });
+    setSessionsMap((prev) => ({ ...prev, [sessionKey]: next }));
+    setSelectedSessionId(next[next.length - 1].id);
+  };
 
   const selectedClass = schedule[selectedClassIdx];
   const rosterKey = selectedClass?.grade?.replace(/^(Grade|Curso|Maila)\s+/, "").replace(/Maila$/, "").trim() ??
@@ -37,8 +58,7 @@ function AttendancePage() {
 
   const [stateMap, setStateMap] = useState<Record<string, Record<string, Status>>>({});
 
-  const getKey = (classIdx: number, day: number) => `${classIdx}-${day}`;
-  const currentKey = getKey(selectedClassIdx, selectedDay);
+  const currentKey = `${selectedClassIdx}-${selectedDate}-${activeSessionId}`;
   const state = stateMap[currentKey] ?? Object.fromEntries(roster.map((n) => [n, "present" as Status]));
 
   const setState = (newState: Record<string, Status>) => {
@@ -98,28 +118,46 @@ function AttendancePage() {
             )}
           </div>
 
-          {/* Day selector */}
+          {/* Date picker */}
           <div>
             <label className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-2 block">
-              {t("page.timetable.title")}
+              {lang === "eu" ? "Data" : lang === "es" ? "Fecha" : "Date"}
             </label>
-            <div className="flex gap-1.5">
-              {days.map((day, i) => (
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="h-[42px] px-3 rounded-lg bg-card border border-border text-sm font-medium hover:bg-secondary/40 transition-colors"
+            />
+            <p className="text-[11px] text-muted-foreground mt-1">{formatDate(new Date(selectedDate), lang)}</p>
+          </div>
+
+          {/* Sessions */}
+          <div>
+            <label className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-2 block">
+              {lang === "eu" ? "Saioak" : lang === "es" ? "Sesiones" : "Sessions"}
+            </label>
+            <div className="flex gap-1.5 items-center flex-wrap">
+              {sessions.map((s) => (
                 <button
-                  key={day}
-                  onClick={() => setSelectedDay(i)}
-                  className={`px-3.5 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                    i === selectedDay
+                  key={s.id}
+                  onClick={() => setSelectedSessionId(s.id)}
+                  className={`px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
+                    s.id === activeSessionId
                       ? "bg-primary text-primary-foreground border-primary"
-                      : i === todayIdx
-                      ? "bg-accent/20 border-accent/40 text-accent hover:bg-accent/30"
                       : "bg-card border-border text-muted-foreground hover:bg-secondary/50"
                   }`}
                 >
-                  {day}
-                  {i === todayIdx && <span className="ml-1 text-[10px]">•</span>}
+                  {s.time}
                 </button>
               ))}
+              <button
+                onClick={addSession}
+                className="h-9 w-9 grid place-items-center rounded-lg border border-dashed border-border text-muted-foreground hover:bg-secondary/40"
+                title={lang === "eu" ? "Saio gehiago" : lang === "es" ? "Añadir sesión" : "Add session"}
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </button>
             </div>
           </div>
         </div>
@@ -136,7 +174,9 @@ function AttendancePage() {
           <div className="px-6 py-3 border-b border-border bg-secondary/30 flex items-center justify-between">
             <div>
               <p className="font-medium text-sm">{selectedClass?.subject}</p>
-              <p className="text-xs text-muted-foreground">{selectedClass?.room} · {days[selectedDay]}</p>
+              <p className="text-xs text-muted-foreground">
+                {selectedClass?.room} · {formatDate(new Date(selectedDate), lang)} · {sessions.find((s) => s.id === activeSessionId)?.time}
+              </p>
             </div>
             <span className="text-xs text-muted-foreground">{roster.length} {t("schedule.students")}</span>
           </div>
