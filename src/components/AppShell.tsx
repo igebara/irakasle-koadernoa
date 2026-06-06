@@ -7,7 +7,6 @@ import {
   MessageSquare,
   Settings,
   BookOpen,
-  PenSquare,
   FileText,
   Users,
   CalendarDays,
