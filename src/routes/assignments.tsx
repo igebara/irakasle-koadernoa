@@ -237,7 +237,7 @@ function StudentView({
   assignments, allStudents, selectedStudent, setSelectedStudent,
   studentDropOpen, setStudentDropOpen, selectedStudentIdx,
   studentMeasurements, allMeas, defaults,
-  editingId, setEditingId, setForActivity, lang, t,
+  editingId, setEditingId, setForActivity, editMode, lang, t,
 }: any) {
   return (
     <div className="space-y-4">
@@ -330,6 +330,12 @@ function StudentView({
                             key={ind.id}
                             level={measurements[ind.id] as CompetencyLevel}
                             label={`${ind.code} · ${ind.label[lang as Lang]}`}
+                            editable={editMode}
+                            onChange={(lv) => {
+                              const actId = `act-${assignments.findIndex((x: any) => x.title === a.title)}`;
+                              const base = allMeas[actId] ?? defaults[actId] ?? {};
+                              setForActivity(actId, { ...base, [ind.id]: lv });
+                            }}
                           />
                         ))}
                       </div>
@@ -357,7 +363,7 @@ function TaskView({
   assignments, allStudents, selectedTaskIdx, setSelectedTaskIdx,
   taskDropOpen, setTaskDropOpen,
   studentMeasurements, allMeas, defaults,
-  editingId, setEditingId, setForActivity, lang, t,
+  editingId, setEditingId, setForActivity, editMode, lang, t,
 }: any) {
   const assignment = assignments[selectedTaskIdx];
   const actId = `act-${selectedTaskIdx}`;
