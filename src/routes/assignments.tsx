@@ -2,10 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AppShell, PageHeader } from "@/components/AppShell";
 import { useLanguage, getLocalizedData, type Lang } from "@/lib/i18n";
-import { Plus, SlidersHorizontal, User, ClipboardList, ChevronDown } from "lucide-react";
+import { Plus, SlidersHorizontal, User, ClipboardList, ChevronDown, LayoutGrid, Pencil, X } from "lucide-react";
 import { CompetencyLegend, CompetencyMeter, IndicatorBar, type CompetencyLevel } from "@/components/CompetencyMeter";
 import { mathCompetencies } from "@/lib/curriculum";
-import { useMeasurements } from "@/lib/programazioa";
+import { useMeasurements, useProgramazioak } from "@/lib/programazioa";
 import { MeasurementEditor } from "@/components/MeasurementEditor";
 
 export const Route = createFileRoute("/assignments")({
@@ -25,7 +25,7 @@ const allStudents = [
   { name: "Kenji Tanaka", grade: "12A" },
 ];
 
-type ViewMode = "student" | "task";
+type ViewMode = "student" | "task" | "overview";
 
 function AssignmentsPage() {
   const { lang, t } = useLanguage();
@@ -33,6 +33,25 @@ function AssignmentsPage() {
   const { data: allMeas, setForActivity } = useMeasurements();
   const [viewMode, setViewMode] = useState<ViewMode>("student");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const { list: programs } = useProgramazioak();
+
+  // Custom tasks created via "New measurement"
+  const [customTasks, setCustomTasks] = useState<{ title: string; class: string; compIds: string[]; indicatorIds: string[] }[]>([]);
+  const allAssignments = useMemo(() => {
+    const custom = customTasks.map((c, i) => ({
+      title: c.title,
+      class: c.class,
+      dueKey: null as any,
+      dueLabel: "—",
+      submitted: 0,
+      total: 0,
+      __custom: true,
+      __idx: i,
+    }));
+    return [...custom, ...assignments];
+  }, [customTasks, assignments]);
 
   // Student view state
   const [selectedStudent, setSelectedStudent] = useState(allStudents[0]);
@@ -45,8 +64,15 @@ function AssignmentsPage() {
   // Seed deterministic measurements per activity
   const defaults = useMemo(() => {
     const seed: Record<string, Record<string, number>> = {};
-    assignments.forEach((a, i) => {
+    allAssignments.forEach((a: any, i) => {
       const id = `act-${i}`;
+      if (a.__custom) {
+        const m: Record<string, number> = {};
+        const tk = customTasks[a.__idx];
+        tk.indicatorIds.forEach((indId, ii) => { m[indId] = ((ii % 4) + 1); });
+        seed[id] = m;
+        return;
+      }
       const picked = [mathCompetencies[i % mathCompetencies.length], mathCompetencies[(i + 2) % mathCompetencies.length]];
       const m: Record<string, number> = {};
       picked.forEach((c, ci) => {
@@ -57,7 +83,7 @@ function AssignmentsPage() {
       seed[id] = m;
     });
     return seed;
-  }, [assignments]);
+  }, [allAssignments, customTasks]);
 
   // Per-student measurements: slightly perturb default per student index
   const studentMeasurements = (actId: string, studentIdx: number): Record<string, number> => {
@@ -79,8 +105,11 @@ function AssignmentsPage() {
           title={t("page.assignments.title")}
           subtitle={t("page.assignments.subtitle")}
           action={
-            <button className="h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 inline-flex items-center gap-2">
-              <Plus className="h-4 w-4" /> {t("hero.newAssignment")}
+            <button
+              onClick={() => setPickerOpen(true)}
+              className="h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 inline-flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" /> {t("assign.newMeasurement")}
             </button>
           }
         />
@@ -102,7 +131,21 @@ function AssignmentsPage() {
               <ClipboardList className="h-4 w-4" />
               {lang === "eu" ? "Ataza ikuspegi" : lang === "es" ? "Por tarea" : "By task"}
             </button>
+            <button
+              onClick={() => setViewMode("overview")}
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors ${viewMode === "overview" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary/60"}`}
+            >
+              <LayoutGrid className="h-4 w-4" />
+              {t("assign.overview")}
+            </button>
           </div>
+
+          <button
+            onClick={() => setEditMode((e) => !e)}
+            className={`inline-flex items-center gap-2 h-10 px-3 rounded-lg border text-sm font-medium transition-colors ${editMode ? "bg-accent text-accent-foreground border-accent" : "bg-card border-border text-muted-foreground hover:bg-secondary/60"}`}
+          >
+            <Pencil className="h-4 w-4" /> {t("assign.editMode")}
+          </button>
 
           <div className="ml-auto rounded-lg border border-border bg-card px-4 py-2">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">{t("comp.level")}</div>
@@ -113,7 +156,7 @@ function AssignmentsPage() {
         {/* ── STUDENT VIEW ── */}
         {viewMode === "student" && (
           <StudentView
-            assignments={assignments}
+            assignments={allAssignments}
             allStudents={allStudents}
             selectedStudent={selectedStudent}
             setSelectedStudent={setSelectedStudent}
@@ -126,6 +169,7 @@ function AssignmentsPage() {
             editingId={editingId}
             setEditingId={setEditingId}
             setForActivity={setForActivity}
+            editMode={editMode}
             lang={lang}
             t={t}
           />
@@ -134,7 +178,7 @@ function AssignmentsPage() {
         {/* ── TASK VIEW ── */}
         {viewMode === "task" && (
           <TaskView
-            assignments={assignments}
+            assignments={allAssignments}
             allStudents={allStudents}
             selectedTaskIdx={selectedTaskIdx}
             setSelectedTaskIdx={setSelectedTaskIdx}
@@ -146,18 +190,39 @@ function AssignmentsPage() {
             editingId={editingId}
             setEditingId={setEditingId}
             setForActivity={setForActivity}
+            editMode={editMode}
             lang={lang}
             t={t}
           />
+        )}
+
+        {/* ── OVERVIEW ── */}
+        {viewMode === "overview" && (
+          <OverviewPanel allAssignments={allAssignments} allStudents={allStudents} studentMeasurements={studentMeasurements} lang={lang} />
         )}
 
         {editingId && (
           <MeasurementEditor
             open
             onClose={() => setEditingId(null)}
-            activityTitle={assignments[parseInt(editingId.split("-")[1], 10)]?.title ?? ""}
+            activityTitle={allAssignments[parseInt(editingId.split("-")[1], 10)]?.title ?? ""}
             initial={allMeas[editingId] ?? defaults[editingId] ?? {}}
             onSave={(m) => setForActivity(editingId, m)}
+          />
+        )}
+
+        {pickerOpen && (
+          <NewMeasurementPicker
+            programs={programs}
+            lang={lang}
+            t={t}
+            onClose={() => setPickerOpen(false)}
+            onPick={(payload) => {
+              setCustomTasks((prev) => [payload, ...prev]);
+              setPickerOpen(false);
+              setViewMode("task");
+              setSelectedTaskIdx(0);
+            }}
           />
         )}
       </>
