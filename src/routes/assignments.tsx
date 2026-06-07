@@ -93,7 +93,7 @@ function AssignmentsPage() {
   const egoeraOptions = useMemo(() => {
     const set = new Map<string, string>();
     subjectPrograms.forEach((p) =>
-      p.ikasEgoerak.forEach((ie) => set.set(ie.id, ie.title[lang] || ie.title.eu)),
+      p.ikasEgoerak.forEach((ie) => set.set(ie.id, (ie.title as any)[lang] || ie.title.eu)),
     );
     return Array.from(set.entries());
   }, [subjectPrograms, lang]);
@@ -625,10 +625,10 @@ function NewMeasurementPicker({
                       onClick={() =>
                         onPick({
                           id: `m-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 5)}`,
-                          title: at.title[lang] || at.title.eu,
+                          title: (at.title as any)[lang] || at.title.eu,
                           classId: selectedClass.id,
                           ikasEgoeraId: ie.id,
-                          ikasEgoeraTitle: ie.title[lang] || ie.title.eu,
+                          ikasEgoeraTitle: (ie.title as any)[lang] || ie.title.eu,
                           ebaluazioa: ebal,
                           programName: p.name,
                           compIds: at.competencies.map((c) => c.compId),
@@ -638,11 +638,11 @@ function NewMeasurementPicker({
                       className="w-full text-left px-4 py-3 hover:bg-secondary/40 transition-colors"
                     >
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium flex-1">{at.title[lang] || at.title.eu}</p>
+                        <p className="text-sm font-medium flex-1">{(at.title as any)[lang] || at.title.eu}</p>
                         <Check className="h-3.5 w-3.5 text-muted-foreground" />
                       </div>
                       <p className="text-[11px] text-muted-foreground mt-0.5">
-                        {ie.title[lang] || ie.title.eu} · {at.competencies.length} {t("comp.title").toLowerCase()}
+                        {(ie.title as any)[lang] || ie.title.eu} · {at.competencies.length} {t("comp.title").toLowerCase()}
                       </p>
                     </button>
                   )),
