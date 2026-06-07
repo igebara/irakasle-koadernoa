@@ -15,6 +15,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProgramazioaRouteImport } from './routes/programazioa'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as GradebookRouteImport } from './routes/gradebook'
+import { Route as EbaluazioaRouteImport } from './routes/ebaluazioa'
 import { Route as ClassesRouteImport } from './routes/classes'
 import { Route as AttendanceRouteImport } from './routes/attendance'
 import { Route as AssignmentsRouteImport } from './routes/assignments'
@@ -51,6 +52,11 @@ const GradebookRoute = GradebookRouteImport.update({
   path: '/gradebook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EbaluazioaRoute = EbaluazioaRouteImport.update({
+  id: '/ebaluazioa',
+  path: '/ebaluazioa',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ClassesRoute = ClassesRouteImport.update({
   id: '/classes',
   path: '/classes',
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/assignments': typeof AssignmentsRoute
   '/attendance': typeof AttendanceRoute
   '/classes': typeof ClassesRoute
+  '/ebaluazioa': typeof EbaluazioaRoute
   '/gradebook': typeof GradebookRoute
   '/messages': typeof MessagesRoute
   '/programazioa': typeof ProgramazioaRouteWithChildren
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/assignments': typeof AssignmentsRoute
   '/attendance': typeof AttendanceRoute
   '/classes': typeof ClassesRoute
+  '/ebaluazioa': typeof EbaluazioaRoute
   '/gradebook': typeof GradebookRoute
   '/messages': typeof MessagesRoute
   '/programazioa': typeof ProgramazioaRouteWithChildren
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/assignments': typeof AssignmentsRoute
   '/attendance': typeof AttendanceRoute
   '/classes': typeof ClassesRoute
+  '/ebaluazioa': typeof EbaluazioaRoute
   '/gradebook': typeof GradebookRoute
   '/messages': typeof MessagesRoute
   '/programazioa': typeof ProgramazioaRouteWithChildren
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/assignments'
     | '/attendance'
     | '/classes'
+    | '/ebaluazioa'
     | '/gradebook'
     | '/messages'
     | '/programazioa'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/assignments'
     | '/attendance'
     | '/classes'
+    | '/ebaluazioa'
     | '/gradebook'
     | '/messages'
     | '/programazioa'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/assignments'
     | '/attendance'
     | '/classes'
+    | '/ebaluazioa'
     | '/gradebook'
     | '/messages'
     | '/programazioa'
@@ -164,6 +176,7 @@ export interface RootRouteChildren {
   AssignmentsRoute: typeof AssignmentsRoute
   AttendanceRoute: typeof AttendanceRoute
   ClassesRoute: typeof ClassesRoute
+  EbaluazioaRoute: typeof EbaluazioaRoute
   GradebookRoute: typeof GradebookRoute
   MessagesRoute: typeof MessagesRoute
   ProgramazioaRoute: typeof ProgramazioaRouteWithChildren
@@ -214,6 +227,13 @@ declare module '@tanstack/react-router' {
       path: '/gradebook'
       fullPath: '/gradebook'
       preLoaderRoute: typeof GradebookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ebaluazioa': {
+      id: '/ebaluazioa'
+      path: '/ebaluazioa'
+      fullPath: '/ebaluazioa'
+      preLoaderRoute: typeof EbaluazioaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/classes': {
@@ -271,6 +291,7 @@ const rootRouteChildren: RootRouteChildren = {
   AssignmentsRoute: AssignmentsRoute,
   AttendanceRoute: AttendanceRoute,
   ClassesRoute: ClassesRoute,
+  EbaluazioaRoute: EbaluazioaRoute,
   GradebookRoute: GradebookRoute,
   MessagesRoute: MessagesRoute,
   ProgramazioaRoute: ProgramazioaRouteWithChildren,
@@ -281,3 +302,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
