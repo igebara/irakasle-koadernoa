@@ -15,7 +15,7 @@ import { AppShell } from "@/components/AppShell";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Irakasle Ataria — Northgate Akademia" },
+      { title: "Irakasle Ataria" },
       { name: "description", content: "Irakasle ataria: klaseak, asistentzia, notategia, lanak eta gurasoen mezuak." },
       { property: "og:title", content: "Irakasle Ataria — Northgate Akademia" },
       { property: "og:description", content: "Irakasle ataria: klaseak, asistentzia, notategia, lanak eta gurasoen mezuak." },
