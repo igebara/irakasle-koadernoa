@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
   Bell, Search, LayoutDashboard, ClipboardCheck, MessageSquare,
   BookOpen, PenSquare, FileText, Users, CalendarDays, CalendarRange,
-  Video, Globe, ChevronDown, LogOut, Settings, UserCircle,
+  Globe, ChevronDown, LogOut, Settings, UserCircle,
   ShieldCheck, GraduationCap, Check,
 } from "lucide-react";
 import { useRef, useState, useEffect, type ReactNode } from "react";
@@ -220,17 +220,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
 
-        <div className="m-3 p-4 rounded-xl bg-sidebar-accent text-sidebar-accent-foreground">
-          <p className="text-xs uppercase tracking-wider text-sidebar-foreground/60">{t("sidebar.nextClass")}</p>
-          <p className="font-display text-lg font-semibold mt-1">Kalkulua · 11:00</p>
-          <p className="text-xs text-sidebar-foreground/60 mt-1">{t("sidebar.nextClassDetail")}</p>
-          <Link
-            to="/classes"
-            className="mt-3 w-full h-8 rounded-md bg-sidebar-primary text-sidebar-primary-foreground text-xs font-medium hover:opacity-90 inline-flex items-center justify-center gap-1.5"
-          >
-            <Video className="h-3 w-3" /> {t("sidebar.openLesson")}
-          </Link>
-        </div>
       </aside>
 
       {/* ── Main ── */}

@@ -38,6 +38,23 @@ function Index() {
   return (
     <AppShell>
       <>
+        {/* Stats */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {stats.map((s) => (
+            <Link key={s.labelKey} to={s.to} className="rounded-xl bg-card border border-border p-5 hover:border-accent transition-colors block" style={{ boxShadow: "var(--shadow-soft)" }}>
+              <div className="flex items-center justify-between">
+                <div className="h-10 w-10 rounded-lg bg-secondary text-primary grid place-items-center">
+                  <s.icon className="h-5 w-5" />
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <p className="font-display text-2xl font-semibold mt-4">{s.value}</p>
+              <p className="text-sm font-medium mt-1">{t(s.labelKey)}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t(s.hintKey)}</p>
+            </Link>
+          ))}
+        </section>
+
         {/* Hero */}
         <section
           className="rounded-2xl p-6 md:p-8 text-primary-foreground relative overflow-hidden"
@@ -62,23 +79,6 @@ function Index() {
           </div>
           <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-primary-foreground/10 blur-3xl" />
           <div className="pointer-events-none absolute -left-10 -bottom-24 h-64 w-64 rounded-full bg-accent/30 blur-3xl" />
-        </section>
-
-        {/* Stats */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          {stats.map((s) => (
-            <Link key={s.labelKey} to={s.to} className="rounded-xl bg-card border border-border p-5 hover:border-accent transition-colors block" style={{ boxShadow: "var(--shadow-soft)" }}>
-              <div className="flex items-center justify-between">
-                <div className="h-10 w-10 rounded-lg bg-secondary text-primary grid place-items-center">
-                  <s.icon className="h-5 w-5" />
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <p className="font-display text-2xl font-semibold mt-4">{s.value}</p>
-              <p className="text-sm font-medium mt-1">{t(s.labelKey)}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{t(s.hintKey)}</p>
-            </Link>
-          ))}
         </section>
 
         {/* Two-column main content */}
