@@ -28,6 +28,7 @@ const navItems = [
   { key: "nav.classes", to: "/classes", icon: BookOpen },
   { key: "nav.attendance", to: "/attendance", icon: ClipboardCheck },
   { key: "nav.assignments", to: "/assignments", icon: FileText },
+  { key: "nav.ebaluazioa", to: "/ebaluazioa", icon: ClipboardCheck },
   { key: "nav.programazioa", to: "/programazioa", icon: CalendarRange },
   { key: "nav.students", to: "/students", icon: Users },
   { key: "nav.timetable", to: "/timetable", icon: CalendarDays },
